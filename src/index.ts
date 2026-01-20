@@ -1,4 +1,4 @@
-import { google, forms_v1 } from 'googleapis';
+import { google, forms_v1, drive_v3 } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -100,6 +100,7 @@ export interface FormConfig {
 const SCOPES = [
   'https://www.googleapis.com/auth/forms.body',
   'https://www.googleapis.com/auth/forms.responses.readonly',
+  'https://www.googleapis.com/auth/drive.file',
 ];
 
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
@@ -108,6 +109,7 @@ const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 export class GoogleFormsGenerator {
   private auth: OAuth2Client | null = null;
   private forms: forms_v1.Forms | null = null;
+  private drive: drive_v3.Drive | null = null;
 
   async authenticate(): Promise<void> {
     if (!fs.existsSync(CREDENTIALS_PATH)) {
@@ -138,6 +140,7 @@ export class GoogleFormsGenerator {
 
     this.auth = oAuth2Client;
     this.forms = google.forms({ version: 'v1', auth: oAuth2Client });
+    this.drive = google.drive({ version: 'v3', auth: oAuth2Client });
   }
 
   private async getNewToken(oAuth2Client: OAuth2Client): Promise<void> {
@@ -432,6 +435,31 @@ export class GoogleFormsGenerator {
         ],
       },
     });
+  }
+
+  async listForms(): Promise<{ id: string; name: string; createdTime: string }[]> {
+    if (!this.drive) {
+      throw new Error('Not authenticated. Call authenticate() first.');
+    }
+
+    const response = await this.drive.files.list({
+      q: "mimeType='application/vnd.google-apps.form'",
+      fields: 'files(id, name, createdTime)',
+      orderBy: 'createdTime desc',
+    });
+
+    return (response.data.files || []).map((f) => ({
+      id: f.id || '',
+      name: f.name || '',
+      createdTime: f.createdTime || '',
+    }));
+  }
+
+  async deleteForm(formId: string): Promise<void> {
+    if (!this.drive) {
+      throw new Error('Not authenticated. Call authenticate() first.');
+    }
+    await this.drive.files.delete({ fileId: formId });
   }
 }
 

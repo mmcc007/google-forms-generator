@@ -19,11 +19,12 @@ Generate Google Forms programmatically from YAML files or TypeScript using the G
 2. Create a new project or select an existing one
 3. Note your project ID
 
-### 2. Enable the Google Forms API
+### 2. Enable Required APIs
 
 1. Go to [APIs & Services > Library](https://console.cloud.google.com/apis/library)
-2. Search for "Google Forms API"
-3. Click **Enable**
+2. Search for and enable:
+   - **Google Forms API** - for creating and managing forms
+   - **Google Drive API** - for listing and deleting forms
 
 ### 3. Configure OAuth Consent Screen
 
@@ -38,6 +39,7 @@ Generate Google Forms programmatically from YAML files or TypeScript using the G
 6. Add these scopes:
    - `https://www.googleapis.com/auth/forms.body`
    - `https://www.googleapis.com/auth/forms.responses.readonly`
+   - `https://www.googleapis.com/auth/drive.file`
 7. Click **Save and Continue**
 8. Add your email as a test user
 9. Click **Save and Continue**
@@ -72,6 +74,25 @@ On first run, you'll be prompted to:
 3. Copy the authorization code back to the terminal
 
 After authorization, a `token.json` file is created and you won't need to re-authorize.
+
+### List all forms
+
+```bash
+npm run list-forms
+```
+
+Lists all Google Forms in your Drive with their IDs and creation dates.
+
+### Delete forms
+
+```bash
+npm run delete-forms
+```
+
+Lists all forms and prompts you to select which ones to delete. You can enter:
+- Comma-separated numbers (e.g., `1,2,3`)
+- `all` to delete all listed forms
+- Press Enter to cancel
 
 ### YAML Configuration
 
@@ -215,6 +236,8 @@ console.log(`Form URL: https://docs.google.com/forms/d/${formId}/viewform`);
 - `getForm(formId)` - Get form details
 - `getResponses(formId)` - Get form responses
 - `deleteQuestion(formId, index)` - Delete a question
+- `listForms()` - List all forms in your Drive
+- `deleteForm(formId)` - Delete a form
 
 ## Files
 

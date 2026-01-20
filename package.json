@@ -9,7 +9,9 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "example": "ts-node src/example.ts",
-    "generate": "ts-node src/yaml-to-form.ts"
+    "generate": "ts-node src/yaml-to-form.ts",
+    "list-forms": "ts-node src/list-forms.ts",
+    "delete-forms": "ts-node src/delete-forms.ts"
   },
   "bin": {
     "gform": "./dist/yaml-to-form.js"
