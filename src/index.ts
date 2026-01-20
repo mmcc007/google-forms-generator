@@ -9,34 +9,41 @@ import * as readline from 'readline';
 export interface TextQuestion {
   type: 'text';
   title: string;
+  description?: string;
   required?: boolean;
   paragraph?: boolean;
 }
 
+export type OptionItem = string | { value: string; isOther?: boolean };
+
 export interface MultipleChoiceQuestion {
   type: 'multipleChoice';
   title: string;
+  description?: string;
   required?: boolean;
-  options: string[];
+  options: OptionItem[];
 }
 
 export interface CheckboxQuestion {
   type: 'checkbox';
   title: string;
+  description?: string;
   required?: boolean;
-  options: string[];
+  options: OptionItem[];
 }
 
 export interface DropdownQuestion {
   type: 'dropdown';
   title: string;
+  description?: string;
   required?: boolean;
-  options: string[];
+  options: OptionItem[];
 }
 
 export interface ScaleQuestion {
   type: 'scale';
   title: string;
+  description?: string;
   required?: boolean;
   low: number;
   high: number;
@@ -47,8 +54,26 @@ export interface ScaleQuestion {
 export interface DateQuestion {
   type: 'date';
   title: string;
+  description?: string;
   required?: boolean;
   includeTime?: boolean;
+}
+
+export interface TimeQuestion {
+  type: 'time';
+  title: string;
+  description?: string;
+  required?: boolean;
+  duration?: boolean;
+}
+
+export interface RatingQuestion {
+  type: 'rating';
+  title: string;
+  description?: string;
+  required?: boolean;
+  ratingScale: number;
+  icon: 'star' | 'heart' | 'thumbUp';
 }
 
 export interface PageBreak {
@@ -57,9 +82,16 @@ export interface PageBreak {
   description?: string;
 }
 
+export interface SectionHeader {
+  type: 'title';
+  title: string;
+  description?: string;
+}
+
 export interface GridQuestion {
   type: 'grid';
   title: string;
+  description?: string;
   required?: boolean;
   rows: string[];
   columns: string[];
@@ -68,6 +100,7 @@ export interface GridQuestion {
 export interface CheckboxGridQuestion {
   type: 'checkboxGrid';
   title: string;
+  description?: string;
   required?: boolean;
   rows: string[];
   columns: string[];
@@ -80,10 +113,12 @@ export type Question =
   | DropdownQuestion
   | ScaleQuestion
   | DateQuestion
+  | TimeQuestion
+  | RatingQuestion
   | GridQuestion
   | CheckboxGridQuestion;
 
-export type FormItem = Question | PageBreak;
+export type FormItem = Question | PageBreak | SectionHeader;
 
 export interface FormSettings {
   collectEmail?: 'none' | 'verified' | 'input';
@@ -255,12 +290,21 @@ export class GoogleFormsGenerator {
         pageBreakItem: {},
       };
     }
+    if (item.type === 'title') {
+      // textItem creates a title/description without page break
+      return {
+        title: item.title,
+        description: item.description,
+        textItem: {},
+      };
+    }
     return this.buildQuestionItem(item);
   }
 
   private buildQuestionItem(question: Question): forms_v1.Schema$Item {
     const baseItem: forms_v1.Schema$Item = {
       title: question.title,
+      description: (question as any).description,
     };
 
     switch (question.type) {
@@ -285,7 +329,13 @@ export class GoogleFormsGenerator {
               required: question.required ?? false,
               choiceQuestion: {
                 type: 'RADIO',
-                options: question.options.map((opt) => ({ value: opt })),
+                options: question.options.map((opt) =>
+                  typeof opt === 'string'
+                    ? { value: opt }
+                    : opt.isOther
+                      ? { isOther: true }
+                      : { value: opt.value }
+                ),
               },
             },
           },
@@ -299,7 +349,13 @@ export class GoogleFormsGenerator {
               required: question.required ?? false,
               choiceQuestion: {
                 type: 'CHECKBOX',
-                options: question.options.map((opt) => ({ value: opt })),
+                options: question.options.map((opt) =>
+                  typeof opt === 'string'
+                    ? { value: opt }
+                    : opt.isOther
+                      ? { isOther: true }
+                      : { value: opt.value }
+                ),
               },
             },
           },
@@ -313,7 +369,13 @@ export class GoogleFormsGenerator {
               required: question.required ?? false,
               choiceQuestion: {
                 type: 'DROP_DOWN',
-                options: question.options.map((opt) => ({ value: opt })),
+                options: question.options.map((opt) =>
+                  typeof opt === 'string'
+                    ? { value: opt }
+                    : opt.isOther
+                      ? { isOther: true }
+                      : { value: opt.value }
+                ),
               },
             },
           },
@@ -345,6 +407,38 @@ export class GoogleFormsGenerator {
                 includeTime: question.includeTime ?? false,
               },
             },
+          },
+        };
+
+      case 'time':
+        return {
+          ...baseItem,
+          questionItem: {
+            question: {
+              required: question.required ?? false,
+              timeQuestion: {
+                duration: question.duration ?? false,
+              },
+            } as any,
+          },
+        };
+
+      case 'rating':
+        const iconTypeMap = {
+          star: 'STAR',
+          heart: 'HEART',
+          thumbUp: 'THUMB_UP',
+        };
+        return {
+          ...baseItem,
+          questionItem: {
+            question: {
+              required: question.required ?? false,
+              ratingQuestion: {
+                ratingScaleLevel: question.ratingScale,
+                iconType: iconTypeMap[question.icon] || 'STAR',
+              },
+            } as any,
           },
         };
 

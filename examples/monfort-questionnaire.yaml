@@ -11,12 +11,16 @@ description: |
 
   We estimate this will take 25-35 minutes to complete collaboratively.
 
-sections:
+pages:
   - title: "Section 1: Team & Decision-Making"
     questions:
       - type: paragraph
         title: "1.1 Who from your team should be involved in evaluating and implementing a technology solution?"
         description: "Names and roles"
+
+      - type: title
+        title: "1.2 Approval Authority"
+        description: "Who has final say on different types of decisions?"
 
       - type: text
         title: "1.2a Who has final approval for new software subscriptions (recurring cost)?"
@@ -27,8 +31,11 @@ sections:
       - type: text
         title: "1.2c Who has final approval for changes to team workflows?"
 
+      - type: title
+        title: "1.3 Broader Team Impact"
+
       - type: checkbox
-        title: "1.3 Beyond the investment team, are there other team members affected by better deal flow or project tracking tools?"
+        title: "Beyond the investment team, are there other team members affected by better deal flow or project tracking tools?"
         options:
           - Finance/Accounting
           - Legal/Compliance
@@ -43,8 +50,12 @@ sections:
 
   - title: "Section 2: Current Technology Environment"
     questions:
+      - type: title
+        title: "2.1 Current Tools"
+        description: "What tools does your team currently use for each function?"
+
       - type: checkbox
-        title: "2.1a What tools does your team use for Email?"
+        title: "2.1a Email"
         options:
           - Gmail
           - Outlook
@@ -52,7 +63,7 @@ sections:
             isOther: true
 
       - type: checkbox
-        title: "2.1b What tools does your team use for Calendar?"
+        title: "2.1b Calendar"
         options:
           - Google Calendar
           - Outlook Calendar
@@ -60,7 +71,7 @@ sections:
             isOther: true
 
       - type: checkbox
-        title: "2.1c What tools does your team use for File storage?"
+        title: "2.1c File storage"
         options:
           - Google Drive
           - Dropbox
@@ -70,7 +81,7 @@ sections:
             isOther: true
 
       - type: checkbox
-        title: "2.1d What tools does your team use for Communication?"
+        title: "2.1d Communication"
         options:
           - Slack
           - Teams
@@ -79,13 +90,17 @@ sections:
             isOther: true
 
       - type: checkbox
-        title: "2.1e What tools does your team use for Deal/contact tracking?"
+        title: "2.1e Deal/contact tracking"
         options:
           - Spreadsheets
           - CRM (specify below)
           - None formal
           - value: Other
             isOther: true
+
+      - type: title
+        title: "2.2 Past Tool Experiences"
+        description: "Understanding what hasn't worked helps us avoid the same pitfalls."
 
       - type: paragraph
         title: "2.2a What specifically didn't work about Notion?"
@@ -96,21 +111,27 @@ sections:
       - type: paragraph
         title: "2.3 Are there any tools your team loves and wouldn't want to replace?"
 
+      - type: title
+        title: "2.4 Existing Integrations"
+
       - type: multipleChoice
-        title: "2.4 Do you have any existing integrations between tools?"
+        title: "Do you have any existing integrations between tools?"
         options:
           - "Yes (describe below)"
           - No formal integrations
           - Not sure
 
       - type: paragraph
-        title: "2.4 If yes, describe your existing integrations:"
+        title: "If yes, describe your existing integrations:"
 
   - title: "Section 3: Investment Workflow"
     description: "These questions focus on your PE/VC investment activities."
     questions:
+      - type: title
+        title: "3.1 Deal Flow Volume & Sources"
+
       - type: multipleChoice
-        title: "3.1 Approximately how many new investment opportunities come to you per month?"
+        title: "Approximately how many new investment opportunities come to you per month?"
         options:
           - Fewer than 10
           - 10-25
@@ -132,8 +153,12 @@ sections:
           - value: Other
             isOther: true
 
+      - type: title
+        title: "3.3 Deal Funnel & Tracking"
+
       - type: grid
-        title: "3.3 What is your typical deal flow funnel?"
+        title: "What is your typical deal flow funnel?"
+        description: "Approximate conversion rates between stages"
         rows:
           - "Initial review → Preliminary diligence"
           - "Preliminary → Deep diligence"
@@ -156,8 +181,11 @@ sections:
           - value: Other
             isOther: true
 
+      - type: title
+        title: "3.5 Portfolio Management"
+
       - type: grid
-        title: "3.5 For your portfolio companies, rate pain level for each activity"
+        title: "For your portfolio companies, rate pain level for each activity"
         rows:
           - Receiving updates from portfolio companies
           - Tracking key metrics and milestones
@@ -194,12 +222,15 @@ sections:
             isOther: true
 
       - type: paragraph
-        title: "4.4 What's the biggest communication or tracking challenge on the development side?"
+        title: "4.3 What's the biggest communication or tracking challenge on the development side?"
 
   - title: "Section 5: Communication & Visibility"
     questions:
+      - type: title
+        title: "5.1 Status Update Overhead"
+
       - type: multipleChoice
-        title: "5.1 How often do team members ask for status updates that could have been self-served?"
+        title: "How often do team members ask for status updates that could have been self-served?"
         options:
           - Multiple times daily
           - A few times per day
@@ -216,11 +247,14 @@ sections:
           - '"What''s the timeline for [milestone]?"'
           - '"Do we have [document/information]?"'
 
-      - type: paragraph
-        title: "5.4 If you could have a 'magic dashboard' that showed exactly what you needed each morning, what would be on it?"
+      - type: title
+        title: "5.3 Ideal Information Access"
 
       - type: paragraph
-        title: "5.5 What information would be most valuable in a weekly digest?"
+        title: "If you could have a 'magic dashboard' that showed exactly what you needed each morning, what would be on it?"
+
+      - type: paragraph
+        title: "5.4 What information would be most valuable in a weekly digest?"
 
   - title: "Section 6: Time & Effort"
     questions:
@@ -253,8 +287,11 @@ sections:
 
   - title: "Section 7: Technology Philosophy"
     questions:
+      - type: title
+        title: "7.1 Investment Level"
+
       - type: multipleChoice
-        title: "7.1 Given the cost/complexity spectrum, where does your interest fall?"
+        title: "Given the cost/complexity spectrum, where does your interest fall?"
         description: "Lightweight CRM: $20-30K | Portfolio platform: $100-200K | Enterprise: $200-500K"
         options:
           - Lightweight and fast — Lower cost, quicker wins
@@ -262,8 +299,11 @@ sections:
           - Somewhere in between — Want to understand trade-offs
           - Not sure — Need guidance
 
+      - type: title
+        title: "7.2 Decision Factors"
+
       - type: checkbox
-        title: "7.2 What factors are most important? (Select top 3)"
+        title: "What factors are most important? (Select top 3)"
         options:
           - Lower upfront cost
           - Lower ongoing/subscription cost
@@ -275,8 +315,11 @@ sections:
           - Integration with existing systems
           - Data ownership and control
 
+      - type: title
+        title: "7.3 Build vs. Buy Preference"
+
       - type: multipleChoice
-        title: "7.4 Does your team generally prefer:"
+        title: "Does your team generally prefer:"
         options:
           - Adopting established software (even if not perfect fit)
           - Building custom solutions for your workflow
@@ -285,23 +328,23 @@ sections:
 
   - title: "Section 8: Budget, Timeline & Constraints"
     questions:
-      - type: text
-        title: "8.1a Budget: Initial proof of concept ($)"
-        validation:
-          type: number
+      - type: title
+        title: "8.1 Budget Parameters"
 
       - type: text
-        title: "8.1b Budget: Full solution if POC succeeds ($)"
-        validation:
-          type: number
+        title: "8.1a Initial proof of concept budget ($)"
 
       - type: text
-        title: "8.1c Budget: Ongoing annual costs ($)"
-        validation:
-          type: number
+        title: "8.1b Full solution budget if POC succeeds ($)"
+
+      - type: text
+        title: "8.1c Ongoing annual costs budget ($)"
+
+      - type: title
+        title: "8.2 Timeline & Integration"
 
       - type: multipleChoice
-        title: "8.2 How quickly do you need to see improvement?"
+        title: "How quickly do you need to see improvement?"
         options:
           - ASAP — This is causing real pain right now
           - Within the next quarter would be ideal
@@ -318,8 +361,11 @@ sections:
           - Accounting software
           - LP/investor portals
 
+      - type: title
+        title: "8.4 Maintenance Considerations"
+
       - type: multipleChoice
-        title: "8.4 For custom development, who would maintain it?"
+        title: "For custom development, who would maintain it?"
         options:
           - Vendor (SPARK6) provides ongoing support
           - We have internal resources
@@ -328,16 +374,22 @@ sections:
 
   - title: "Section 9: Success Criteria"
     questions:
+      - type: title
+        title: "9.1 Defining Success"
+
       - type: paragraph
-        title: "9.1 If we're successful, what would be different 90 days from now?"
+        title: "If we're successful, what would be different 90 days from now?"
         required: true
 
       - type: paragraph
         title: "9.2 What would make this project a failure?"
         required: true
 
+      - type: title
+        title: "9.3 Constraints & Considerations"
+
       - type: checkbox
-        title: "9.3 Are there any constraints we should know about?"
+        title: "Are there any constraints we should know about?"
         options:
           - Data security/compliance requirements
           - Specific must-have integrations

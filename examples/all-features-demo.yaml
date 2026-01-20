@@ -1,0 +1,238 @@
+# Comprehensive demo of all Google Forms YAML features
+# Demonstrates every question type, subheaders, and descriptions
+
+title: Complete Features Demo
+description: |
+  This form demonstrates all available question types and features,
+  including the new title/subheader feature for organizing questions
+  within a page without creating page breaks.
+
+settings:
+  collectEmail: verified
+
+pages:
+  # Page 1: Text input types
+  - title: "Section 1: Text Inputs"
+    description: Various text input question types
+    questions:
+      - type: title
+        title: "1.1 Short Text Responses"
+        description: Use these for brief answers like names, emails, or short phrases.
+
+      - type: text
+        title: What is your full name?
+        description: Please enter your first and last name
+        required: true
+
+      - type: text
+        title: What is your email address?
+        required: true
+
+      - type: title
+        title: "1.2 Long Text Responses"
+        description: Use paragraph type for detailed answers.
+
+      - type: paragraph
+        title: Please describe your experience with our product
+        description: Feel free to include specific examples
+
+      - type: paragraph
+        title: Any additional comments?
+
+  # Page 2: Choice-based questions
+  - title: "Section 2: Choice Questions"
+    description: Multiple choice, checkboxes, and dropdowns
+    questions:
+      - type: title
+        title: "2.1 Single Selection"
+        description: Questions where only one answer can be selected.
+
+      - type: multipleChoice
+        title: What is your primary role?
+        description: Select the option that best describes you
+        required: true
+        options:
+          - Executive / C-Level
+          - Manager / Director
+          - Individual Contributor
+          - Consultant / Freelancer
+          - Student
+          - value: Other
+            isOther: true
+
+      - type: dropdown
+        title: How many years of experience do you have?
+        description: Dropdowns work well for long lists
+        options:
+          - Less than 1 year
+          - 1-2 years
+          - 3-5 years
+          - 6-10 years
+          - More than 10 years
+
+      - type: title
+        title: "2.2 Multiple Selection"
+        description: Questions where multiple answers can be selected.
+
+      - type: checkbox
+        title: Which features are most important to you?
+        description: Select all that apply
+        required: true
+        options:
+          - Ease of use
+          - Performance
+          - Security
+          - Integration options
+          - Customer support
+          - Pricing
+          - value: Other
+            isOther: true
+
+      - type: checkbox
+        title: Which platforms do you use?
+        options:
+          - Windows
+          - macOS
+          - Linux
+          - iOS
+          - Android
+
+  # Page 3: Scale and Rating questions
+  - title: "Section 3: Scales and Ratings"
+    description: Numeric scales and visual ratings
+    questions:
+      - type: title
+        title: "3.1 Linear Scales"
+        description: Numeric scales with labeled endpoints.
+
+      - type: scale
+        title: How likely are you to recommend us to a friend?
+        description: "Net Promoter Score (NPS) scale"
+        required: true
+        scale:
+          min: 0
+          max: 10
+          minLabel: Not at all likely
+          maxLabel: Extremely likely
+
+      - type: scale
+        title: How satisfied are you with our service?
+        scale:
+          min: 1
+          max: 5
+          minLabel: Very dissatisfied
+          maxLabel: Very satisfied
+
+      - type: title
+        title: "3.2 Visual Ratings"
+        description: Icon-based ratings for quick visual feedback.
+
+      - type: rating
+        title: Rate your overall experience
+        description: Click to select your rating
+        required: true
+        ratingScale: 5
+        icon: star
+
+      - type: rating
+        title: How much do you love our product?
+        ratingScale: 5
+        icon: heart
+
+      - type: rating
+        title: Would you recommend us?
+        ratingScale: 3
+        icon: thumbUp
+
+  # Page 4: Date and Time
+  - title: "Section 4: Date and Time"
+    description: Date and time input fields
+    questions:
+      - type: title
+        title: "4.1 Date Fields"
+        description: Collect dates with optional time.
+
+      - type: date
+        title: What is your date of birth?
+        description: Date only
+
+      - type: date
+        title: When would you like to schedule a meeting?
+        description: Date and time
+        includeTime: true
+
+      - type: title
+        title: "4.2 Time Fields"
+        description: Collect time of day or duration.
+
+      - type: time
+        title: What time do you usually start work?
+        description: Time of day
+
+      - type: time
+        title: How long is your commute?
+        description: Duration (hours:minutes)
+        duration: true
+
+  # Page 5: Grid questions
+  - title: "Section 5: Grid Questions"
+    description: Matrix-style questions with rows and columns
+    questions:
+      - type: title
+        title: "5.1 Radio Grid"
+        description: Select one option per row.
+
+      - type: grid
+        title: Rate each aspect of our service
+        description: Select one rating per row
+        required: true
+        rows:
+          - Customer Support
+          - Product Quality
+          - Value for Money
+          - Ease of Use
+          - Documentation
+        columns:
+          - Poor
+          - Fair
+          - Good
+          - Excellent
+
+      - type: title
+        title: "5.2 Checkbox Grid"
+        description: Select multiple options per row.
+
+      - type: checkboxGrid
+        title: Which features do you use in each context?
+        description: Select all that apply for each context
+        rows:
+          - At work
+          - At home
+          - While traveling
+        columns:
+          - Email
+          - Calendar
+          - Documents
+          - Chat
+          - Video calls
+
+  # Page 6: Final section
+  - title: "Section 6: Wrap Up"
+    description: Final questions and submission
+    questions:
+      - type: title
+        title: "Thank you for your time!"
+        description: |
+          Your feedback helps us improve our products and services.
+          Please review your answers before submitting.
+
+      - type: multipleChoice
+        title: Would you be willing to participate in a follow-up interview?
+        options:
+          - "Yes, please contact me"
+          - "Maybe, send me more information"
+          - "No, thank you"
+
+      - type: paragraph
+        title: Any final thoughts or suggestions?
+        description: Optional - share anything else you'd like us to know

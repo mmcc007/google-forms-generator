@@ -1,0 +1,674 @@
+# Formation Healthcare — Technical Questionnaire
+# Conforms to: ../schema/form-schema.yaml
+# Version: 2.0
+
+title: Formation Healthcare — Technical Questionnaire
+description: |
+  Production Design Collaboration
+  Version: 2.0
+
+  This questionnaire helps us design the production system. While the POC tests
+  extraction accuracy, these questions inform how we build, deploy, and operate
+  the full solution.
+
+  This is collaborative. We share our thinking, ask questions, and invite your
+  feedback. Your domain expertise will make this better.
+
+  Please complete at your convenience — this runs parallel to the POC, not
+  dependent on it.
+
+pages:
+  # Section 1: Current Processing Effort
+  - title: "Current Processing Effort"
+    description: "Understanding the baseline helps us measure impact."
+    questions:
+      - type: text
+        title: "1.1 How long does it take to process a document?"
+        description: "Approximate time per document (end to end) in minutes"
+
+      - type: title
+        title: "1.2 Time Breakdown by Activity"
+        description: "Approximate percentage of time spent on each activity"
+
+      - type: grid
+        title: "Time spent on each activity"
+        description: "Select the approximate percentage of time for each activity"
+        rows:
+          - Opening/reviewing document
+          - Locating relevant data points
+          - Entering data into system
+          - Validation/quality checks
+          - Other
+        columns:
+          - "0%"
+          - "10%"
+          - "20%"
+          - "30%"
+          - "40%"
+          - "50%"
+          - "60%"
+          - "70%"
+          - "80%"
+          - "90%"
+          - "100%"
+
+      - type: text
+        title: "If 'Other' selected above, please describe"
+
+      - type: title
+        title: "1.3 Pain Points"
+        description: "What's the tedious or error-prone part?"
+
+      - type: paragraph
+        title: "Which part of the process is most monotonous for analysts?"
+
+      - type: paragraph
+        title: "Which part is most prone to errors?"
+
+  # Section 2: Document Delivery
+  - title: "Document Delivery"
+    description: "Understanding how documents flow into your system today."
+    questions:
+      - type: checkbox
+        title: "2.1 How do documents arrive?"
+        description: "Check all that apply"
+        options:
+          - Email with attachments
+          - Upload portal / web interface
+          - FTP / SFTP
+          - API integration
+          - Physical mail (scanned internally)
+          - value: Other
+            isOther: true
+
+      - type: text
+        title: "If 'Other' selected above, please describe"
+
+      - type: checkbox
+        title: "2.2 Who sends the documents?"
+        options:
+          - Facilities send directly to you
+          - Clients (operators/lenders) forward to you
+          - You retrieve from state websites
+          - Third-party scraper retrieves
+          - Mixed sources
+          - value: Other
+            isOther: true
+
+      - type: text
+        title: "If 'Other' selected above, please describe"
+
+      - type: paragraph
+        title: "Notes on document sources"
+
+      - type: multipleChoice
+        title: "2.3 Is there a naming convention for files?"
+        options:
+          - "Yes, standardized"
+          - "Partially — some follow convention, some don't"
+          - No convention
+
+      - type: paragraph
+        title: "If yes, what does it look like?"
+        description: "Example: [State]_[FacilityID]_[DocType]_[Date].pdf"
+
+      - type: checkbox
+        title: "2.4 What file formats do you receive?"
+        options:
+          - Text-based PDFs (selectable text)
+          - Scanned PDFs (image-only)
+          - Word documents
+          - Excel files
+          - value: Other
+            isOther: true
+
+      - type: text
+        title: "If 'Other' selected above, please describe"
+
+      - type: text
+        title: "Approximate percentage that are scanned/image-based"
+        description: "Enter a number (0-100)"
+
+      - type: multipleChoice
+        title: "Is there any handwritten content?"
+        options:
+          - Never
+          - Rarely
+          - Sometimes
+          - Frequently
+
+      - type: multipleChoice
+        title: "2.5 Do documents arrive individually or in batches?"
+        options:
+          - One document per email/submission
+          - Multiple documents bundled together
+          - Mixed
+
+      - type: paragraph
+        title: "Notes on document batching"
+
+      - type: checkbox
+        title: "2.6 What metadata is captured at intake?"
+        description: "Check all that apply"
+        options:
+          - Facility ID
+          - Facility name
+          - State
+          - Date received
+          - Submitter name/email
+          - Document type
+          - value: Other
+            isOther: true
+
+      - type: text
+        title: "If 'Other' selected above, please describe"
+
+      - type: paragraph
+        title: "Notes on metadata"
+
+  # Section 3: Survey Process Overview
+  - title: "Survey Process Overview"
+    description: "Understanding the regulatory context helps us design better extraction."
+    questions:
+      - type: checkbox
+        title: "3.1 What triggers a survey?"
+        description: "Check all that apply"
+        options:
+          - Scheduled periodic surveys (every X months)
+          - Complaint-driven surveys
+          - Follow-up to previous deficiencies
+          - License renewal
+          - value: Other
+            isOther: true
+
+      - type: text
+        title: "If 'Other' selected above, please describe"
+
+      - type: paragraph
+        title: "Notes on survey triggers"
+
+      - type: paragraph
+        title: "3.2 For a typical survey, what's the sequence of documents?"
+        description: "Example: Survey notification → Deficiency letter → Plan of Correction → Compliance letter"
+
+      - type: multipleChoice
+        title: "3.3 How do documents from the same survey relate?"
+        options:
+          - Each document stands alone
+          - Documents reference each other (e.g., appeal references original deficiency)
+          - Documents are linked by survey ID or date
+          - "Mixed — depends on document type"
+
+      - type: multipleChoice
+        title: "Do you need cross-document validation?"
+        description: "e.g., fine amount in notice matches appeal document"
+        options:
+          - "Yes"
+          - "No"
+
+      - type: paragraph
+        title: "If yes, describe cross-document validation needs"
+
+  # Section 4: Data Transformation
+  - title: "Data Transformation"
+    description: "We need to understand whether extraction is pure transcription or involves interpretation."
+    questions:
+      - type: multipleChoice
+        title: "4.1 When analysts extract data, is it direct transcription?"
+        description: 'Example: "January 15, 2026" in document → "January 15, 2026" in system'
+        options:
+          - "Yes, mostly direct transcription"
+          - Some fields require conversion (e.g., date formatting)
+          - Significant interpretation required
+
+      - type: paragraph
+        title: "Please describe any conversions or transformations"
+
+      - type: checkbox
+        title: "4.2 Are there lookups against existing data?"
+        description: 'Example: "Sunrise Senior Living - Tampa" → Facility ID 12847'
+        options:
+          - "Yes — facility names mapped to IDs"
+          - "Yes — violation codes mapped to categories/severity"
+          - "Yes — other lookups (describe below)"
+          - No lookups required
+
+      - type: paragraph
+        title: "Notes on lookups"
+
+      - type: multipleChoice
+        title: "4.3 Are there calculations?"
+        description: "Example: Fine + Penalty + Interest = Total Due"
+        options:
+          - "Yes"
+          - "No"
+
+      - type: paragraph
+        title: "If yes, describe the calculations"
+
+      - type: multipleChoice
+        title: "4.4 Are there conditional rules?"
+        description: 'Example: "If violation type = X and state = Y, then flag for lender notification"'
+        options:
+          - "Yes"
+          - "No"
+
+      - type: paragraph
+        title: "If yes, describe the conditional rules"
+
+      - type: multipleChoice
+        title: "4.5 How is narrative/descriptive content handled?"
+        description: "When a document contains narrative text (violation descriptions, inspector notes)"
+        options:
+          - Verbatim transcription (word for word)
+          - Summarized
+          - Categorized into predefined types
+          - "Not captured — only structured data extracted"
+          - Varies by document type
+
+      - type: paragraph
+        title: "Notes on narrative handling"
+
+      - type: multipleChoice
+        title: "4.6 Could you share your data entry guide?"
+        description: "This becomes our extraction specification"
+        options:
+          - Will attach with questionnaire response
+          - Will provide separately
+          - Need to discuss what's shareable
+
+      - type: paragraph
+        title: "Notes on data entry guide"
+
+  # Section 5: Document Type Classification
+  - title: "Document Type Classification"
+    description: "Understanding how analysts know what they're looking at."
+    questions:
+      - type: checkbox
+        title: "5.1 How do analysts identify document type?"
+        options:
+          - File naming convention
+          - Metadata from intake
+          - Read the document and determine
+          - Combination of above
+          - value: Other
+            isOther: true
+
+      - type: text
+        title: "If 'Other' selected above, please describe"
+
+      - type: multipleChoice
+        title: "5.2 Are there hybrid or ambiguous documents?"
+        description: "Example: A single document that functions as both a deficiency letter and fine notice"
+        options:
+          - "No — documents are clearly one type"
+          - "Sometimes"
+          - Frequently
+
+      - type: paragraph
+        title: "If sometimes/frequently, please describe"
+
+  # Section 6: Quality Gates
+  - title: "Quality Gates"
+    description: |
+      Our thinking: We want to validate document quality at intake — before processing.
+      Reject problematic documents at the door rather than process garbage.
+
+      Proposed approach:
+      • Check if document is text-extractable (not image-only scan)
+      • Validate minimum content (not blank or corrupted)
+      • Identify document type before extraction
+      • Assign quality score based on source facility track record
+    questions:
+      - type: multipleChoice
+        title: "6.1 Do you currently reject low-quality documents?"
+        options:
+          - "Yes — we send back with resubmission request"
+          - "Sometimes — depends on severity"
+          - "No — we accept everything and work with what we get"
+
+      - type: paragraph
+        title: "If yes, what triggers rejection?"
+
+      - type: multipleChoice
+        title: "6.2 Would facilities accept automated rejection with resubmission request?"
+        description: 'Example: "Document unreadable. Please resubmit as text-based PDF."'
+        options:
+          - "Yes — most would comply"
+          - "Some would, some wouldn't"
+          - "No — this would cause friction"
+          - Unsure
+
+      - type: paragraph
+        title: "Notes on automated rejection"
+
+      - type: multipleChoice
+        title: "6.3 Can you require text-based PDFs?"
+        description: "Would it be feasible to require submitters to send text-based (not scanned) PDFs?"
+        options:
+          - "Yes — we could enforce this"
+          - "Partially — some sources yes, others no"
+          - "No — not practical"
+
+      - type: paragraph
+        title: "Notes on PDF requirements"
+
+      - type: checkbox
+        title: "6.4 What quality issues cause rework today?"
+        description: "Check all that apply"
+        options:
+          - Unreadable scans
+          - Missing pages
+          - Wrong document type sent
+          - Incomplete information
+          - Duplicate submissions
+          - value: Other
+            isOther: true
+
+      - type: text
+        title: "If 'Other' selected above, please describe"
+
+      - type: paragraph
+        title: "How much time does quality-related rework consume?"
+
+      - type: paragraph
+        title: "6.5 Does intake validation make sense for your workflow? Concerns? Suggestions?"
+
+  # Section 7: Risk-Weighted Accuracy
+  - title: "Risk-Weighted Accuracy"
+    description: "Understanding which fields matter most for critical decisions."
+    questions:
+      - type: paragraph
+        title: "7.1 What data triggers lender notifications?"
+        description: "You mentioned that getting data wrong could put a $30M investment at risk. What specific data points trigger lender notifications?"
+
+      - type: title
+        title: "7.2 Document Risk Ranking"
+        description: "Rank by risk level (1 = highest risk, 5 = lowest risk)"
+
+      - type: grid
+        title: "Document type risk ranking"
+        description: "Select the risk level for each document type (1 = highest risk)"
+        rows:
+          - Deficiency letters
+          - Fine notices
+          - Appeal results
+          - Cover letters
+          - Compliance letters
+          - Other
+        columns:
+          - "1 (Highest)"
+          - "2"
+          - "3"
+          - "4"
+          - "5 (Lowest)"
+
+      - type: text
+        title: "If 'Other' selected above, specify document type"
+
+      - type: paragraph
+        title: "7.3 Which specific fields are most critical?"
+        description: "Are there fields where even one error would be unacceptable?"
+
+      - type: title
+        title: "7.4 Error Consequences"
+        description: "If an extraction error went undetected, how severe would the impact be? Rate each error type on a scale of 1-10 (1 = minor inconvenience, 10 = catastrophic). Please explain your ratings in the notes below."
+
+      - type: grid
+        title: "Error severity by type"
+        description: "1 = minor inconvenience, 10 = catastrophic"
+        rows:
+          - Missed lender notification trigger
+          - Wrong fine amount
+          - Wrong date
+          - Wrong facility identified
+          - Other
+        columns:
+          - "1"
+          - "2"
+          - "3"
+          - "4"
+          - "5"
+          - "6"
+          - "7"
+          - "8"
+          - "9"
+          - "10"
+
+      - type: text
+        title: "If 'Other' selected above, specify error type"
+
+      - type: paragraph
+        title: "Notes: Please explain your severity ratings and describe what happens for each error type"
+
+  # Section 8: Facility Reliability & Onboarding
+  - title: "Facility Reliability & Onboarding"
+    description: |
+      You mentioned new facilities come with historical data (2-3 years).
+      We see this as an opportunity to establish reliability baselines before they go "live."
+
+      Our thinking:
+      • Process historical batch to establish facility profile
+      • Identify document formats and quality patterns
+      • Calculate reliability score before first live document
+      • Set facility-specific confidence thresholds if needed
+      • Monitor new facilities more closely initially
+    questions:
+      - type: multipleChoice
+        title: "8.1 How much historical data typically accompanies a new facility?"
+        options:
+          - Less than 1 year
+          - 1-2 years
+          - 2-3 years
+          - More than 3 years
+          - Varies widely
+
+      - type: multipleChoice
+        title: "Is that historical data already structured, or raw documents?"
+        options:
+          - Already entered in your system (structured)
+          - Raw documents only
+          - Both available
+
+      - type: multipleChoice
+        title: "8.2 Do you have informal assessments of facility reliability already?"
+        options:
+          - "Yes — we know which facilities are 'clean' vs. problematic"
+          - "Somewhat — general sense but not tracked"
+          - "No"
+
+      - type: paragraph
+        title: "If yes, what makes a facility 'clean' vs. problematic?"
+
+      - type: paragraph
+        title: "8.3 Are there facilities or operators you know produce more consistent documents?"
+
+      - type: paragraph
+        title: "Are there facilities that are consistently problematic?"
+
+      - type: paragraph
+        title: "8.4 Does facility-level reliability scoring make sense? Would it be useful to see this data?"
+
+  # Section 9: Facility Pushback Mechanism
+  - title: "Facility Pushback Mechanism"
+    description: "When facilities consistently submit poor-quality documents, there needs to be a feedback loop."
+    questions:
+      - type: checkbox
+        title: "9.1 How do you communicate quality issues to facilities today?"
+        options:
+          - Email (manual)
+          - Phone call
+          - Through the operator (not directly to facility)
+          - Formal written notice
+          - "We don't — we just deal with it"
+          - value: Other
+            isOther: true
+
+      - type: text
+        title: "If 'Other' selected above, please describe"
+
+      - type: multipleChoice
+        title: "9.2 How long does it typically take to get corrective responses?"
+        options:
+          - Days
+          - Weeks
+          - Months
+          - Varies widely
+          - Often never improves
+
+      - type: multipleChoice
+        title: "9.3 Do you have facilities that never improve?"
+        options:
+          - "Yes"
+          - "No"
+          - Unsure
+
+      - type: paragraph
+        title: "How do you handle persistent quality issues?"
+
+      - type: multipleChoice
+        title: "9.4 Would automated quality alerts to facilities be valuable?"
+        description: "Example: monthly report showing their document quality score and specific issues"
+        options:
+          - "Yes — very useful"
+          - "Maybe — would need to think about it"
+          - "No — would cause friction"
+          - "Other concerns (describe below)"
+
+      - type: paragraph
+        title: "Notes on automated quality feedback"
+
+  # Section 10: Production Quality Framework
+  - title: "Production Quality Framework"
+    description: "Here's how we envision maintaining and improving accuracy over time. We'd value your feedback on each component."
+    questions:
+      - type: title
+        title: "10.1 Confidence Threshold Control"
+        description: |
+          Our thinking:
+          • You set the confidence threshold (e.g., 99%) that determines auto-accept vs. human review
+          • Higher threshold = fewer errors, more human review
+          • Lower threshold = more automation, slightly higher error rate
+          • Guardrails prevent dangerous settings (bounded range, impact preview, change logging)
+
+      - type: paragraph
+        title: "Who would manage threshold settings?"
+
+      - type: multipleChoice
+        title: "Does this level of control make sense, or would you prefer we manage it?"
+        options:
+          - We want control
+          - You manage it with our input
+          - Unsure
+
+      - type: paragraph
+        title: "Feedback on confidence threshold control"
+
+      - type: title
+        title: "10.2 Dimensional Tracking"
+        description: |
+          Our thinking: Track accuracy segmented by State, Document type, Facility,
+          Field type, and Operator. This lets us identify where problems cluster
+          and target improvements.
+
+      - type: paragraph
+        title: "What dimensions matter most to you?"
+
+      - type: paragraph
+        title: "Are there states or document types you already know are problematic?"
+
+      - type: paragraph
+        title: "Feedback on dimensional tracking"
+
+      - type: title
+        title: "10.3 Audit Sweep"
+        description: |
+          Our thinking: Periodically review "borderline" documents — those that were
+          auto-accepted but had confidence scores in the 95-99% range. This catches
+          systematic issues before they accumulate.
+
+      - type: multipleChoice
+        title: "How often would you want to run audits?"
+        options:
+          - Weekly
+          - Monthly
+          - Quarterly
+          - As-needed
+          - Unsure
+
+      - type: paragraph
+        title: "Who would perform audit reviews?"
+
+      - type: paragraph
+        title: "Feedback on audit sweep"
+
+      - type: title
+        title: "10.4 Growing Validation Dataset"
+        description: |
+          Our thinking:
+          • Every analyst correction becomes labeled data
+          • System learns from production feedback
+          • Accuracy validation improves as volume accumulates
+          • No additional sample documents required from you
+
+      - type: multipleChoice
+        title: "Would analysts be comfortable knowing their corrections feed system improvement?"
+        options:
+          - "Yes"
+          - Need to discuss with team
+          - "Concerns (describe below)"
+
+      - type: paragraph
+        title: "Feedback on growing validation dataset"
+
+      - type: title
+        title: "10.5 Drift Detection"
+        description: |
+          Our thinking: Automatically alert when accuracy drops — signals format change,
+          new issue, or system problem. Notification goes to designated admin.
+
+      - type: multipleChoice
+        title: "How quickly do you need to know about accuracy changes?"
+        options:
+          - Immediately (same day)
+          - Within a few days
+          - Weekly summary is fine
+
+      - type: paragraph
+        title: "Who should receive alerts?"
+
+      - type: paragraph
+        title: "Feedback on drift detection"
+
+  # Section 11: Data Sources Clarification
+  - title: "Data Sources Clarification"
+    description: "A few questions to clarify things from our initial conversation."
+    questions:
+      - type: title
+        title: "11.1 Third-party Scraper"
+        description: "You mentioned a third-party partner runs a scraper for one of your products."
+
+      - type: text
+        title: "Which product is this for?"
+
+      - type: paragraph
+        title: "Why doesn't this work for Quality In-Cite®?"
+
+      - type: paragraph
+        title: "Notes on third-party scraper"
+
+      - type: title
+        title: "11.2 Document Sources by Facility Type"
+        description: "Do document sources differ by facility type?"
+
+      - type: text
+        title: "SNF (Skilled Nursing) — Primary document source"
+
+      - type: text
+        title: "Assisted Living — Primary document source"
+
+      - type: text
+        title: "ICF/IDD — Primary document source"
+
+      - type: text
+        title: "Other facility types — specify type and source"

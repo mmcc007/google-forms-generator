@@ -9,7 +9,9 @@ Generate Google Forms programmatically from YAML files or TypeScript using the G
 - Visual sections for organizing questions
 - Grid/matrix questions (native support)
 - Form settings (email collection)
-- Supported question types: text, paragraph, multiple choice, checkbox, dropdown, scale, date, grid, checkboxGrid
+- Supported question types: text, paragraph, multiple choice, checkbox, dropdown, scale, date, time, rating, grid, checkboxGrid
+- Description field support for all question types
+- Title/subsection headers within pages (without page breaks)
 
 ## Setup
 
@@ -138,15 +140,18 @@ Note: `confirmationMessage` is not supported by the Google Forms API.
 
 | Type | Description | Properties |
 |------|-------------|------------|
-| `text` | Short text answer | `required` |
-| `paragraph` | Long text answer | `required` |
-| `multipleChoice` | Single selection (radio) | `required`, `options` |
-| `checkbox` | Multiple selection | `required`, `options` |
-| `dropdown` | Dropdown menu | `required`, `options` |
-| `scale` | Linear scale | `required`, `scale.min`, `scale.max`, `scale.minLabel`, `scale.maxLabel` |
-| `date` | Date picker | `required`, `includeTime` |
-| `grid` | Matrix with radio buttons | `required`, `rows`, `columns` |
-| `checkboxGrid` | Matrix with checkboxes | `required`, `rows`, `columns` |
+| `text` | Short text answer | `required`, `description` |
+| `paragraph` | Long text answer | `required`, `description` |
+| `multipleChoice` | Single selection (radio) | `required`, `description`, `options` |
+| `checkbox` | Multiple selection | `required`, `description`, `options` |
+| `dropdown` | Dropdown menu | `required`, `description`, `options` |
+| `scale` | Linear scale | `required`, `description`, `scale.min`, `scale.max`, `scale.minLabel`, `scale.maxLabel` |
+| `date` | Date picker | `required`, `description`, `includeTime` |
+| `time` | Time picker | `required`, `description` |
+| `rating` | Rating scale (stars, hearts, etc.) | `required`, `description`, `rating.iconType` (STAR, HEART, THUMB_UP) |
+| `grid` | Matrix with radio buttons | `required`, `description`, `rows`, `columns` |
+| `checkboxGrid` | Matrix with checkboxes | `required`, `description`, `rows`, `columns` |
+| `title` | Section header (textItem) | `title`, `description` (no question, just header text within a page) |
 | `fileUpload` | File upload (**not supported - see limitations**) | - |
 
 ### Examples
@@ -191,6 +196,43 @@ Note: `confirmationMessage` is not supported by the Google Forms API.
     - Fair
     - Good
     - Excellent
+```
+
+#### Time
+
+```yaml
+- type: time
+  title: What time do you usually wake up?
+  description: Please provide your typical wake-up time
+  required: true
+```
+
+#### Rating
+
+```yaml
+- type: rating
+  title: Rate your overall satisfaction
+  description: Select the number of stars
+  rating:
+    iconType: STAR  # Options: STAR, HEART, THUMB_UP
+```
+
+#### Title (Section Header)
+
+```yaml
+# Used within pages to create subsection headers without page breaks
+pages:
+  - title: Main Page
+    questions:
+      - type: title
+        title: Personal Information
+        description: Please fill out your details below
+      - type: text
+        title: Name
+      - type: title
+        title: Contact Details
+      - type: text
+        title: Email
 ```
 
 ### Programmatic Usage
@@ -253,6 +295,24 @@ The following features are **not available** via the Google Forms API:
 - Progress bar (must be set manually in UI)
 - Response limit per user (must be set manually in UI)
 - Conditional branching / goToSection (limited API support)
+
+## Roadmap
+
+Future enhancements planned:
+
+### Numbered Questions Schema
+- Support for automatic section/subsection numbering (e.g., 1.1, 1.2, 2.1)
+- Hierarchical question numbering in YAML schema
+
+### Auto "Other" Text Field
+- Automatically append text input field when question type has "Other" option
+- Some question types provide built-in text input, others need explicit follow-up field
+- Handle this automatically in form generation
+
+### Additional Features
+- Conditional logic / branching support
+- Form templates
+- Response export utilities
 
 ## License
 

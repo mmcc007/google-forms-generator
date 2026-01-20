@@ -100,8 +100,11 @@ definitions:
           - dropdown
           - scale
           - date
+          - time
+          - rating
           - grid
           - checkboxGrid
+          - title  # Section header (no input field, no page break)
 
       title:
         type: string
@@ -140,6 +143,26 @@ definitions:
       includeTime:
         type: boolean
         default: false
+
+      # For time
+      duration:
+        type: boolean
+        default: false
+        description: If true, collects duration instead of time of day
+
+      # For rating
+      ratingScale:
+        type: integer
+        minimum: 3
+        maximum: 10
+        default: 5
+        description: Number of rating levels (3-10)
+
+      icon:
+        type: string
+        enum: [star, heart, thumbUp]
+        default: star
+        description: Icon to use for rating
 
       # For grid/checkboxGrid
       rows:
