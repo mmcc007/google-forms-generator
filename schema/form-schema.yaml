@@ -1,0 +1,211 @@
+# Google Forms YAML Schema Definition
+# This schema defines the structure for creating Google Forms from YAML files
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: GoogleFormSchema
+description: Schema for defining Google Forms in YAML format
+type: object
+
+required:
+  - title
+
+properties:
+  title:
+    type: string
+    description: The title of the form
+
+  description:
+    type: string
+    description: Optional description shown at the top of the form
+
+  settings:
+    type: object
+    properties:
+      collectEmail:
+        type: boolean
+        default: false
+      limitOneResponse:
+        type: boolean
+        default: false
+      progressBar:
+        type: boolean
+        default: false
+      shuffleQuestions:
+        type: boolean
+        default: false
+      confirmationMessage:
+        type: string
+
+  # Option 1: Use pages for multi-page forms (creates actual page breaks)
+  pages:
+    type: array
+    description: Multi-page form with page breaks between each page
+    items:
+      $ref: "#/definitions/page"
+
+  # Option 2: Use sections for visual grouping (no page breaks, just headers)
+  sections:
+    type: array
+    description: Sections to organize questions (no page breaks)
+    items:
+      $ref: "#/definitions/section"
+
+  # Option 3: Flat list of questions (simplest)
+  questions:
+    type: array
+    description: List of questions (use if not using pages or sections)
+    items:
+      $ref: "#/definitions/question"
+
+definitions:
+  page:
+    type: object
+    description: A page in the form (creates a page break before it, except for the first page)
+    required:
+      - title
+      - questions
+    properties:
+      title:
+        type: string
+        description: Title shown at the top of the page
+      description:
+        type: string
+        description: Description shown below the page title
+      questions:
+        type: array
+        items:
+          $ref: "#/definitions/question"
+
+  section:
+    type: object
+    description: A visual section (header only, no page break)
+    required:
+      - title
+      - questions
+    properties:
+      title:
+        type: string
+      description:
+        type: string
+      questions:
+        type: array
+        items:
+          $ref: "#/definitions/question"
+
+  question:
+    type: object
+    required:
+      - type
+      - title
+    properties:
+      id:
+        type: string
+        description: Optional unique identifier for the question
+
+      type:
+        type: string
+        enum:
+          - text
+          - paragraph
+          - multipleChoice
+          - checkbox
+          - dropdown
+          - scale
+          - date
+          - time
+          - fileUpload
+          - grid
+          - checkboxGrid
+
+      title:
+        type: string
+        description: The question text
+
+      description:
+        type: string
+        description: Optional help text below the question
+
+      required:
+        type: boolean
+        default: false
+
+      # For text/paragraph
+      validation:
+        type: object
+        properties:
+          type:
+            type: string
+            enum: [number, text, length, regex]
+          pattern:
+            type: string
+          min:
+            type: number
+          max:
+            type: number
+          errorMessage:
+            type: string
+
+      # For multipleChoice, checkbox, dropdown
+      options:
+        type: array
+        items:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                value:
+                  type: string
+                goToSection:
+                  type: string
+                isOther:
+                  type: boolean
+
+      # For scale
+      scale:
+        type: object
+        properties:
+          min:
+            type: integer
+            default: 1
+          max:
+            type: integer
+            default: 5
+          minLabel:
+            type: string
+          maxLabel:
+            type: string
+
+      # For date/time
+      includeTime:
+        type: boolean
+        default: false
+
+      includeYear:
+        type: boolean
+        default: true
+
+      # For grid/checkboxGrid
+      rows:
+        type: array
+        items:
+          type: string
+
+      columns:
+        type: array
+        items:
+          type: string
+
+      # For fileUpload
+      fileTypes:
+        type: array
+        items:
+          type: string
+          enum: [document, spreadsheet, presentation, drawing, pdf, image, video, audio]
+
+      maxFiles:
+        type: integer
+        default: 1
+
+      maxFileSize:
+        type: string
+        enum: [1MB, 10MB, 100MB, 1GB, 10GB]

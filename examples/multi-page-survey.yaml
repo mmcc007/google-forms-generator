@@ -1,0 +1,106 @@
+# Example multi-page survey with page breaks
+# Each "page" creates a separate page in Google Forms
+
+title: Customer Onboarding Survey
+description: |
+  Welcome! This survey will help us understand your needs better.
+  It should take about 5 minutes to complete.
+
+pages:
+  - title: Basic Information
+    description: Let's start with some basic details about you.
+    questions:
+      - type: text
+        title: What is your full name?
+        required: true
+
+      - type: text
+        title: What is your email address?
+        required: true
+
+      - type: multipleChoice
+        title: What is your role?
+        required: true
+        options:
+          - Executive
+          - Manager
+          - Individual Contributor
+          - Consultant
+          - Other
+
+  - title: Your Business
+    description: Tell us about your company and how you work.
+    questions:
+      - type: text
+        title: Company name
+        required: true
+
+      - type: multipleChoice
+        title: Company size
+        options:
+          - 1-10 employees
+          - 11-50 employees
+          - 51-200 employees
+          - 201-1000 employees
+          - 1000+ employees
+
+      - type: checkbox
+        title: Which departments will use this product?
+        options:
+          - Sales
+          - Marketing
+          - Engineering
+          - Finance
+          - Operations
+          - HR
+
+  - title: Your Needs
+    description: Help us understand what you're looking for.
+    questions:
+      - type: checkbox
+        title: What are your main goals?
+        required: true
+        options:
+          - Improve efficiency
+          - Reduce costs
+          - Better collaboration
+          - Data insights
+          - Compliance
+          - Other
+
+      - type: scale
+        title: How urgent is this need?
+        required: true
+        scale:
+          min: 1
+          max: 5
+          minLabel: Not urgent
+          maxLabel: Very urgent
+
+      - type: paragraph
+        title: Please describe your ideal solution
+        required: false
+
+  - title: Final Questions
+    description: Almost done! Just a few more questions.
+    questions:
+      - type: multipleChoice
+        title: How did you hear about us?
+        options:
+          - Google search
+          - Social media
+          - Referral
+          - Event/conference
+          - Other
+
+      - type: multipleChoice
+        title: When are you looking to make a decision?
+        options:
+          - Immediately
+          - Within 1 month
+          - Within 3 months
+          - Within 6 months
+          - Just exploring
+
+      - type: paragraph
+        title: Any other comments or questions?

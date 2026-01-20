@@ -1,0 +1,349 @@
+# Monfort Companies Discovery Questionnaire
+# Conforms to: ../schema/form-schema.yaml
+
+title: Monfort Companies Discovery Questionnaire
+description: |
+  Prepared by SPARK6
+
+  Thank you for taking the time to complete this questionnaire. Your responses
+  will help us understand your current workflows and identify where custom-built
+  solutions can fill the gaps that off-the-shelf tools can't address.
+
+  We estimate this will take 25-35 minutes to complete collaboratively.
+
+sections:
+  - title: "Section 1: Team & Decision-Making"
+    questions:
+      - type: paragraph
+        title: "1.1 Who from your team should be involved in evaluating and implementing a technology solution?"
+        description: "Names and roles"
+
+      - type: text
+        title: "1.2a Who has final approval for new software subscriptions (recurring cost)?"
+
+      - type: text
+        title: "1.2b Who has final approval for custom development projects (one-time cost)?"
+
+      - type: text
+        title: "1.2c Who has final approval for changes to team workflows?"
+
+      - type: checkbox
+        title: "1.3 Beyond the investment team, are there other team members affected by better deal flow or project tracking tools?"
+        options:
+          - Finance/Accounting
+          - Legal/Compliance
+          - Executive assistants/Admin
+          - Real estate development team
+          - External advisors/consultants
+          - value: Other
+            isOther: true
+
+      - type: paragraph
+        title: "1.4 Anything else about your team structure we should understand?"
+
+  - title: "Section 2: Current Technology Environment"
+    questions:
+      - type: checkbox
+        title: "2.1a What tools does your team use for Email?"
+        options:
+          - Gmail
+          - Outlook
+          - value: Other
+            isOther: true
+
+      - type: checkbox
+        title: "2.1b What tools does your team use for Calendar?"
+        options:
+          - Google Calendar
+          - Outlook Calendar
+          - value: Other
+            isOther: true
+
+      - type: checkbox
+        title: "2.1c What tools does your team use for File storage?"
+        options:
+          - Google Drive
+          - Dropbox
+          - Box
+          - SharePoint
+          - value: Other
+            isOther: true
+
+      - type: checkbox
+        title: "2.1d What tools does your team use for Communication?"
+        options:
+          - Slack
+          - Teams
+          - Text
+          - value: Other
+            isOther: true
+
+      - type: checkbox
+        title: "2.1e What tools does your team use for Deal/contact tracking?"
+        options:
+          - Spreadsheets
+          - CRM (specify below)
+          - None formal
+          - value: Other
+            isOther: true
+
+      - type: paragraph
+        title: "2.2a What specifically didn't work about Notion?"
+
+      - type: paragraph
+        title: "2.2b What specifically didn't work about Pipedrive?"
+
+      - type: paragraph
+        title: "2.3 Are there any tools your team loves and wouldn't want to replace?"
+
+      - type: multipleChoice
+        title: "2.4 Do you have any existing integrations between tools?"
+        options:
+          - "Yes (describe below)"
+          - No formal integrations
+          - Not sure
+
+      - type: paragraph
+        title: "2.4 If yes, describe your existing integrations:"
+
+  - title: "Section 3: Investment Workflow"
+    description: "These questions focus on your PE/VC investment activities."
+    questions:
+      - type: multipleChoice
+        title: "3.1 Approximately how many new investment opportunities come to you per month?"
+        options:
+          - Fewer than 10
+          - 10-25
+          - 25-50
+          - 50-100
+          - More than 100
+          - Varies significantly
+
+      - type: checkbox
+        title: "3.2 How do opportunities typically arrive?"
+        options:
+          - Direct email to individual team members
+          - Shared/team inbox
+          - Introductions from personal network
+          - Banker/advisor outreach
+          - Proactive sourcing by your team
+          - Through strategic partners
+          - Techstars/accelerator pipeline
+          - value: Other
+            isOther: true
+
+      - type: grid
+        title: "3.3 What is your typical deal flow funnel?"
+        rows:
+          - "Initial review → Preliminary diligence"
+          - "Preliminary → Deep diligence"
+          - "Deep diligence → Investment committee"
+          - "Investment committee → Closed"
+        columns:
+          - "0-10%"
+          - "10-25%"
+          - "25-50%"
+          - "50-75%"
+          - "75-100%"
+
+      - type: checkbox
+        title: "3.4 How do you currently track which opportunities are at which stage?"
+        options:
+          - Spreadsheet
+          - Email folders/labels
+          - Memory/verbal updates
+          - CRM (specify below)
+          - value: Other
+            isOther: true
+
+      - type: grid
+        title: "3.5 For your portfolio companies, rate pain level for each activity"
+        rows:
+          - Receiving updates from portfolio companies
+          - Tracking key metrics and milestones
+          - Preparing for board meetings
+          - Sharing portfolio status internally
+        columns:
+          - "1 (Low)"
+          - "2"
+          - "3"
+          - "4"
+          - "5 (High)"
+
+  - title: "Section 4: Real Estate Development"
+    questions:
+      - type: multipleChoice
+        title: "4.1 How many active development projects are you currently managing?"
+        options:
+          - 1-3
+          - 4-6
+          - 7-10
+          - More than 10
+
+      - type: checkbox
+        title: "4.2 What types of information need to be tracked and shared?"
+        options:
+          - Timeline/milestones
+          - Budget/costs
+          - Contractor/vendor communications
+          - Permits/approvals status
+          - Investor updates
+          - Lease/tenant information
+          - Property performance metrics
+          - value: Other
+            isOther: true
+
+      - type: paragraph
+        title: "4.4 What's the biggest communication or tracking challenge on the development side?"
+
+  - title: "Section 5: Communication & Visibility"
+    questions:
+      - type: multipleChoice
+        title: "5.1 How often do team members ask for status updates that could have been self-served?"
+        options:
+          - Multiple times daily
+          - A few times per day
+          - A few times per week
+          - Rarely
+
+      - type: checkbox
+        title: "5.2 What types of status questions come up most often?"
+        options:
+          - '"Where are we on [deal/project]?"'
+          - '"Did we hear back from [person/company]?"'
+          - '"What was decided in [meeting]?"'
+          - '"Who''s handling [task]?"'
+          - '"What''s the timeline for [milestone]?"'
+          - '"Do we have [document/information]?"'
+
+      - type: paragraph
+        title: "5.4 If you could have a 'magic dashboard' that showed exactly what you needed each morning, what would be on it?"
+
+      - type: paragraph
+        title: "5.5 What information would be most valuable in a weekly digest?"
+
+  - title: "Section 6: Time & Effort"
+    questions:
+      - type: grid
+        title: "6.1 Investment team hours/week spent on administrative tasks"
+        rows:
+          - Manually entering/updating information
+          - Searching for information across systems
+          - Writing internal status update emails
+          - Preparing summaries for meetings
+          - Coordinating who's doing what
+        columns:
+          - "0-1 hrs"
+          - "1-3 hrs"
+          - "3-5 hrs"
+          - "5-10 hrs"
+          - "10+ hrs"
+
+      - type: checkbox
+        title: "6.2 When information doesn't get updated properly, what happens?"
+        options:
+          - Deals or follow-ups slip through the cracks
+          - Duplicated outreach (embarrassing, wastes relationships)
+          - Decisions made with incomplete information
+          - Time wasted re-gathering information
+          - Tension or frustration among team members
+
+      - type: paragraph
+        title: "6.3 If you could recover 5-10 hours per week per person, what would that time be used for?"
+
+  - title: "Section 7: Technology Philosophy"
+    questions:
+      - type: multipleChoice
+        title: "7.1 Given the cost/complexity spectrum, where does your interest fall?"
+        description: "Lightweight CRM: $20-30K | Portfolio platform: $100-200K | Enterprise: $200-500K"
+        options:
+          - Lightweight and fast — Lower cost, quicker wins
+          - Comprehensive — Willing to invest more for complete solution
+          - Somewhere in between — Want to understand trade-offs
+          - Not sure — Need guidance
+
+      - type: checkbox
+        title: "7.2 What factors are most important? (Select top 3)"
+        options:
+          - Lower upfront cost
+          - Lower ongoing/subscription cost
+          - Speed to implement
+          - Fits our specific workflow exactly
+          - Proven product with vendor support
+          - Minimal maintenance burden
+          - Flexibility to evolve over time
+          - Integration with existing systems
+          - Data ownership and control
+
+      - type: multipleChoice
+        title: "7.4 Does your team generally prefer:"
+        options:
+          - Adopting established software (even if not perfect fit)
+          - Building custom solutions for your workflow
+          - Hybrid approach (platforms + custom-built)
+          - No strong preference
+
+  - title: "Section 8: Budget, Timeline & Constraints"
+    questions:
+      - type: text
+        title: "8.1a Budget: Initial proof of concept ($)"
+        validation:
+          type: number
+
+      - type: text
+        title: "8.1b Budget: Full solution if POC succeeds ($)"
+        validation:
+          type: number
+
+      - type: text
+        title: "8.1c Budget: Ongoing annual costs ($)"
+        validation:
+          type: number
+
+      - type: multipleChoice
+        title: "8.2 How quickly do you need to see improvement?"
+        options:
+          - ASAP — This is causing real pain right now
+          - Within the next quarter would be ideal
+          - Within 6 months is fine
+          - No particular rush — Want to do it right
+
+      - type: checkbox
+        title: "8.3 Systems that any new solution MUST connect to?"
+        options:
+          - Email (Gmail/Outlook)
+          - Calendar
+          - File storage (Google Drive/Dropbox/Box)
+          - Existing spreadsheets/databases
+          - Accounting software
+          - LP/investor portals
+
+      - type: multipleChoice
+        title: "8.4 For custom development, who would maintain it?"
+        options:
+          - Vendor (SPARK6) provides ongoing support
+          - We have internal resources
+          - We'd figure it out as needed
+          - This is a concern we'd need to address
+
+  - title: "Section 9: Success Criteria"
+    questions:
+      - type: paragraph
+        title: "9.1 If we're successful, what would be different 90 days from now?"
+        required: true
+
+      - type: paragraph
+        title: "9.2 What would make this project a failure?"
+        required: true
+
+      - type: checkbox
+        title: "9.3 Are there any constraints we should know about?"
+        options:
+          - Data security/compliance requirements
+          - Specific must-have integrations
+          - Timeline pressures
+          - Key stakeholders who need convincing
+          - Past bad experiences with vendors
+
+      - type: paragraph
+        title: "9.4 Anything else you'd like us to know?"
