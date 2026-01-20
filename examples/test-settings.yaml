@@ -1,0 +1,18 @@
+title: Form Settings Test
+description: Testing form settings (email collection)
+
+settings:
+  collectEmail: true
+
+questions:
+  - type: text
+    title: Your Name
+    required: true
+
+  - type: multipleChoice
+    title: How did you hear about us?
+    options:
+      - Search Engine
+      - Social Media
+      - Friend/Colleague
+      - Other

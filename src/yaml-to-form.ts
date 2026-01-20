@@ -1,6 +1,24 @@
-import GoogleFormsGenerator, { FormConfig, FormItem, Question } from './index';
+import GoogleFormsGenerator, {
+  FormConfig,
+  FormItem,
+  Question,
+  FormSettings,
+  TextValidation,
+  FileType,
+  FileSizeLimit,
+} from './index';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
+
+interface YamlValidation {
+  type: 'number' | 'length' | 'regex' | 'text';
+  pattern?: string;
+  min?: number;
+  max?: number;
+  contains?: string;
+  notContains?: string;
+  errorMessage?: string;
+}
 
 interface YamlQuestion {
   type: string;
@@ -17,11 +35,19 @@ interface YamlQuestion {
   rows?: string[];
   columns?: string[];
   includeTime?: boolean;
-  validation?: {
-    type?: string;
-    min?: number;
-    max?: number;
-  };
+  validation?: YamlValidation;
+  // File upload options
+  fileTypes?: string[];
+  maxFiles?: number;
+  maxFileSize?: string;
+}
+
+interface YamlSettings {
+  collectEmail?: boolean | 'verified' | 'input';
+  confirmationMessage?: string;
+  limitOneResponse?: boolean;
+  progressBar?: boolean;
+  shuffleQuestions?: boolean;
 }
 
 interface YamlSection {
@@ -39,9 +65,44 @@ interface YamlPage {
 interface YamlForm {
   title: string;
   description?: string;
+  settings?: YamlSettings;
   pages?: YamlPage[];      // Multi-page form with page breaks
   sections?: YamlSection[]; // Visual sections (no page breaks)
   questions?: YamlQuestion[]; // Flat list
+}
+
+function convertValidation(v: YamlValidation): TextValidation {
+  switch (v.type) {
+    case 'number':
+      return {
+        type: 'number',
+        min: v.min,
+        max: v.max,
+        errorMessage: v.errorMessage,
+      };
+    case 'length':
+      return {
+        type: 'length',
+        min: v.min,
+        max: v.max,
+        errorMessage: v.errorMessage,
+      };
+    case 'regex':
+      return {
+        type: 'regex',
+        pattern: v.pattern || '',
+        errorMessage: v.errorMessage,
+      };
+    case 'text':
+      return {
+        type: 'text',
+        contains: v.contains,
+        notContains: v.notContains,
+        errorMessage: v.errorMessage,
+      };
+    default:
+      return { type: 'number' };
+  }
 }
 
 function convertQuestion(q: YamlQuestion): Question | Question[] {
@@ -57,6 +118,7 @@ function convertQuestion(q: YamlQuestion): Question | Question[] {
         title: q.title,
         required: q.required,
         paragraph: false,
+        validation: q.validation ? convertValidation(q.validation) : undefined,
       };
 
     case 'paragraph':
@@ -65,6 +127,7 @@ function convertQuestion(q: YamlQuestion): Question | Question[] {
         title: q.title,
         required: q.required,
         paragraph: true,
+        validation: q.validation ? convertValidation(q.validation) : undefined,
       };
 
     case 'multipleChoice':
@@ -111,20 +174,38 @@ function convertQuestion(q: YamlQuestion): Question | Question[] {
       };
 
     case 'grid':
-    case 'checkboxGrid':
-      // Google Forms API doesn't support grid directly in the same way
-      // We'll convert to multiple scale or multiple choice questions
       if (!q.rows || !q.columns) {
         throw new Error(`Grid question "${q.title}" requires rows and columns`);
       }
-
-      // Create a multiple choice question for each row
-      return q.rows.map(row => ({
-        type: 'multipleChoice' as const,
-        title: `${q.title} - ${row}`,
+      return {
+        type: 'grid',
+        title: q.title,
         required: q.required,
-        options: q.columns!,
-      }));
+        rows: q.rows,
+        columns: q.columns,
+      };
+
+    case 'checkboxGrid':
+      if (!q.rows || !q.columns) {
+        throw new Error(`Checkbox grid question "${q.title}" requires rows and columns`);
+      }
+      return {
+        type: 'checkboxGrid',
+        title: q.title,
+        required: q.required,
+        rows: q.rows,
+        columns: q.columns,
+      };
+
+    case 'fileUpload':
+      return {
+        type: 'fileUpload',
+        title: q.title,
+        required: q.required,
+        maxFiles: q.maxFiles,
+        maxFileSize: q.maxFileSize as FileSizeLimit | undefined,
+        fileTypes: q.fileTypes as FileType[] | undefined,
+      };
 
     default:
       console.warn(`Unknown question type: ${q.type}, defaulting to text`);
@@ -188,9 +269,24 @@ export async function yamlToForm(yamlPath: string): Promise<string> {
     addQuestions(form.questions);
   }
 
+  // Convert settings if provided
+  let settings: FormSettings | undefined;
+  if (form.settings) {
+    settings = {};
+    if (form.settings.collectEmail === true || form.settings.collectEmail === 'verified') {
+      settings.collectEmail = 'verified';
+    } else if (form.settings.collectEmail === 'input') {
+      settings.collectEmail = 'input';
+    }
+    if (form.settings.confirmationMessage) {
+      settings.confirmationMessage = form.settings.confirmationMessage;
+    }
+  }
+
   const formConfig: FormConfig = {
     title: form.title,
     description: form.description,
+    settings,
     items,
   };
 

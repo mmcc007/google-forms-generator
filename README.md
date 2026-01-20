@@ -5,13 +5,11 @@ Generate Google Forms programmatically from YAML files or TypeScript using the G
 ## Features
 
 - Create forms from YAML configuration files
-- Support for all Google Forms question types
 - Multi-page forms with page breaks
 - Visual sections for organizing questions
-- Input validation for text questions
-- Grid/matrix questions
-- File upload questions
-- Form settings (email collection, confirmation message)
+- Grid/matrix questions (native support)
+- Form settings (email collection)
+- Supported question types: text, paragraph, multiple choice, checkbox, dropdown, scale, date, grid, checkboxGrid
 
 ## Setup
 
@@ -111,15 +109,16 @@ questions:
 title: My Survey
 settings:
   collectEmail: true           # Collect respondent email (verified or input)
-  confirmationMessage: "Thank you for your response!"
 ```
+
+Note: `confirmationMessage` is not supported by the Google Forms API.
 
 ### Supported Question Types
 
 | Type | Description | Properties |
 |------|-------------|------------|
-| `text` | Short text answer | `required`, `validation` |
-| `paragraph` | Long text answer | `required`, `validation` |
+| `text` | Short text answer | `required` |
+| `paragraph` | Long text answer | `required` |
 | `multipleChoice` | Single selection (radio) | `required`, `options` |
 | `checkbox` | Multiple selection | `required`, `options` |
 | `dropdown` | Dropdown menu | `required`, `options` |
@@ -127,45 +126,9 @@ settings:
 | `date` | Date picker | `required`, `includeTime` |
 | `grid` | Matrix with radio buttons | `required`, `rows`, `columns` |
 | `checkboxGrid` | Matrix with checkboxes | `required`, `rows`, `columns` |
-| `fileUpload` | File upload | `required`, `maxFiles`, `maxFileSize`, `fileTypes` |
+| `fileUpload` | File upload (**not supported - see limitations**) | - |
 
 ### Examples
-
-#### Text with Validation
-
-```yaml
-- type: text
-  title: Enter your age
-  required: true
-  validation:
-    type: number
-    min: 18
-    max: 120
-    errorMessage: "Age must be between 18 and 120"
-```
-
-#### Text Length Validation
-
-```yaml
-- type: paragraph
-  title: Describe your experience
-  validation:
-    type: length
-    min: 50
-    max: 500
-    errorMessage: "Response must be between 50 and 500 characters"
-```
-
-#### Regex Validation
-
-```yaml
-- type: text
-  title: Enter your phone number
-  validation:
-    type: regex
-    pattern: "^\\d{3}-\\d{3}-\\d{4}$"
-    errorMessage: "Please use format: 123-456-7890"
-```
 
 #### Multiple Choice
 
@@ -209,19 +172,6 @@ settings:
     - Excellent
 ```
 
-#### File Upload
-
-```yaml
-- type: fileUpload
-  title: Upload your resume
-  required: true
-  maxFiles: 1
-  maxFileSize: 10MB
-  fileTypes:
-    - pdf
-    - document
-```
-
 ### Programmatic Usage
 
 ```typescript
@@ -235,7 +185,6 @@ const config: FormConfig = {
   description: 'Please fill out this survey',
   settings: {
     collectEmail: 'verified',
-    confirmationMessage: 'Thank you!',
   },
   items: [
     {
@@ -275,6 +224,9 @@ console.log(`Form URL: https://docs.google.com/forms/d/${formId}/viewform`);
 ## Limitations
 
 The following features are **not available** via the Google Forms API:
+- **File upload questions** - cannot be created via API, must be added manually in UI
+- **Text validation** (number, length, regex) - must be set manually in UI
+- **Confirmation message** - must be set manually in UI
 - Progress bar (must be set manually in UI)
 - Response limit per user (must be set manually in UI)
 - Conditional branching / goToSection (limited API support)
