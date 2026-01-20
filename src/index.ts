@@ -6,42 +6,11 @@ import * as readline from 'readline';
 
 // Types for form creation
 
-// Validation types for text questions
-export interface NumberValidation {
-  type: 'number';
-  min?: number;
-  max?: number;
-  errorMessage?: string;
-}
-
-export interface LengthValidation {
-  type: 'length';
-  min?: number;
-  max?: number;
-  errorMessage?: string;
-}
-
-export interface RegexValidation {
-  type: 'regex';
-  pattern: string;
-  errorMessage?: string;
-}
-
-export interface TextContainsValidation {
-  type: 'text';
-  contains?: string;
-  notContains?: string;
-  errorMessage?: string;
-}
-
-export type TextValidation = NumberValidation | LengthValidation | RegexValidation | TextContainsValidation;
-
 export interface TextQuestion {
   type: 'text';
   title: string;
   required?: boolean;
   paragraph?: boolean;
-  validation?: TextValidation;
 }
 
 export interface MultipleChoiceQuestion {
@@ -104,18 +73,6 @@ export interface CheckboxGridQuestion {
   columns: string[];
 }
 
-export type FileType = 'document' | 'spreadsheet' | 'presentation' | 'drawing' | 'pdf' | 'image' | 'video' | 'audio';
-export type FileSizeLimit = '1MB' | '10MB' | '100MB' | '1GB' | '10GB';
-
-export interface FileUploadQuestion {
-  type: 'fileUpload';
-  title: string;
-  required?: boolean;
-  maxFiles?: number;
-  maxFileSize?: FileSizeLimit;
-  fileTypes?: FileType[];
-}
-
 export type Question =
   | TextQuestion
   | MultipleChoiceQuestion
@@ -124,14 +81,12 @@ export type Question =
   | ScaleQuestion
   | DateQuestion
   | GridQuestion
-  | CheckboxGridQuestion
-  | FileUploadQuestion;
+  | CheckboxGridQuestion;
 
 export type FormItem = Question | PageBreak;
 
 export interface FormSettings {
   collectEmail?: 'none' | 'verified' | 'input';
-  confirmationMessage?: string;
 }
 
 export interface FormConfig {
@@ -251,25 +206,17 @@ export class GoogleFormsGenerator {
       });
     }
 
-    // Add settings if provided
-    // Note: Only emailCollectionType is supported by the API
-    // confirmationMessage is NOT supported - must be set manually in UI
-    if (config.settings) {
-      if (config.settings.confirmationMessage) {
-        console.warn('Warning: confirmationMessage is not supported by the Google Forms API and will be ignored.');
-      }
-
-      if (config.settings.collectEmail && config.settings.collectEmail !== 'none') {
-        const emailType = config.settings.collectEmail === 'verified' ? 'VERIFIED' : 'RESPONDER_INPUT';
-        requests.push({
-          updateSettings: {
-            settings: {
-              emailCollectionType: emailType,
-            } as any,
-            updateMask: 'emailCollectionType',
-          },
-        });
-      }
+    // Add settings if provided (only emailCollectionType is supported by the API)
+    if (config.settings?.collectEmail && config.settings.collectEmail !== 'none') {
+      const emailType = config.settings.collectEmail === 'verified' ? 'VERIFIED' : 'RESPONDER_INPUT';
+      requests.push({
+        updateSettings: {
+          settings: {
+            emailCollectionType: emailType,
+          } as any,
+          updateMask: 'emailCollectionType',
+        },
+      });
     }
 
     // Add items (questions and page breaks)
@@ -314,13 +261,7 @@ export class GoogleFormsGenerator {
     };
 
     switch (question.type) {
-      case 'text': {
-        // Note: Text validation is NOT supported by Google Forms API v1
-        // The validation field is ignored - see https://developers.google.com/forms/api/reference/rest/v1/forms
-        if (question.validation) {
-          console.warn(`Warning: Text validation for "${question.title}" is not supported by the Google Forms API and will be ignored.`);
-        }
-
+      case 'text':
         return {
           ...baseItem,
           questionItem: {
@@ -332,7 +273,6 @@ export class GoogleFormsGenerator {
             },
           },
         };
-      }
 
       case 'multipleChoice':
         return {
@@ -439,39 +379,8 @@ export class GoogleFormsGenerator {
           },
         };
 
-      case 'fileUpload':
-        // File upload questions CANNOT be created via the Google Forms API
-        // The API only supports reading existing file upload questions
-        console.warn(`Warning: File upload question "${question.title}" cannot be created via the API. A placeholder has been added - replace it manually in the Google Forms UI.`);
-        return {
-          title: `[FILE UPLOAD - Setup manually] ${question.title}`,
-          description: 'The Google Forms API does not support creating file upload questions. Please delete this placeholder and add a file upload question manually.',
-          questionItem: {
-            question: {
-              required: false,
-              textQuestion: {
-                paragraph: false,
-              },
-            },
-          },
-        };
-
       default:
         throw new Error(`Unknown question type: ${(question as Question).type}`);
-    }
-  }
-
-  private mapFileSize(size?: FileSizeLimit): string {
-    // maxFileSize is specified in bytes as a string (int64 format)
-    const MB = 1024 * 1024;
-    const GB = 1024 * MB;
-    switch (size) {
-      case '1MB': return String(1 * MB);
-      case '10MB': return String(10 * MB);
-      case '100MB': return String(100 * MB);
-      case '1GB': return String(1 * GB);
-      case '10GB': return String(10 * GB);
-      default: return String(10 * MB);  // Default to 10MB
     }
   }
 

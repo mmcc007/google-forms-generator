@@ -3,22 +3,9 @@ import GoogleFormsGenerator, {
   FormItem,
   Question,
   FormSettings,
-  TextValidation,
-  FileType,
-  FileSizeLimit,
 } from './index';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
-
-interface YamlValidation {
-  type: 'number' | 'length' | 'regex' | 'text';
-  pattern?: string;
-  min?: number;
-  max?: number;
-  contains?: string;
-  notContains?: string;
-  errorMessage?: string;
-}
 
 interface YamlQuestion {
   type: string;
@@ -35,19 +22,10 @@ interface YamlQuestion {
   rows?: string[];
   columns?: string[];
   includeTime?: boolean;
-  validation?: YamlValidation;
-  // File upload options
-  fileTypes?: string[];
-  maxFiles?: number;
-  maxFileSize?: string;
 }
 
 interface YamlSettings {
   collectEmail?: boolean | 'verified' | 'input';
-  confirmationMessage?: string;
-  limitOneResponse?: boolean;
-  progressBar?: boolean;
-  shuffleQuestions?: boolean;
 }
 
 interface YamlSection {
@@ -71,40 +49,6 @@ interface YamlForm {
   questions?: YamlQuestion[]; // Flat list
 }
 
-function convertValidation(v: YamlValidation): TextValidation {
-  switch (v.type) {
-    case 'number':
-      return {
-        type: 'number',
-        min: v.min,
-        max: v.max,
-        errorMessage: v.errorMessage,
-      };
-    case 'length':
-      return {
-        type: 'length',
-        min: v.min,
-        max: v.max,
-        errorMessage: v.errorMessage,
-      };
-    case 'regex':
-      return {
-        type: 'regex',
-        pattern: v.pattern || '',
-        errorMessage: v.errorMessage,
-      };
-    case 'text':
-      return {
-        type: 'text',
-        contains: v.contains,
-        notContains: v.notContains,
-        errorMessage: v.errorMessage,
-      };
-    default:
-      return { type: 'number' };
-  }
-}
-
 function convertQuestion(q: YamlQuestion): Question | Question[] {
   const normalizeOptions = (opts: YamlQuestion['options']): string[] => {
     if (!opts) return [];
@@ -118,7 +62,6 @@ function convertQuestion(q: YamlQuestion): Question | Question[] {
         title: q.title,
         required: q.required,
         paragraph: false,
-        validation: q.validation ? convertValidation(q.validation) : undefined,
       };
 
     case 'paragraph':
@@ -127,7 +70,6 @@ function convertQuestion(q: YamlQuestion): Question | Question[] {
         title: q.title,
         required: q.required,
         paragraph: true,
-        validation: q.validation ? convertValidation(q.validation) : undefined,
       };
 
     case 'multipleChoice':
@@ -195,16 +137,6 @@ function convertQuestion(q: YamlQuestion): Question | Question[] {
         required: q.required,
         rows: q.rows,
         columns: q.columns,
-      };
-
-    case 'fileUpload':
-      return {
-        type: 'fileUpload',
-        title: q.title,
-        required: q.required,
-        maxFiles: q.maxFiles,
-        maxFileSize: q.maxFileSize as FileSizeLimit | undefined,
-        fileTypes: q.fileTypes as FileType[] | undefined,
       };
 
     default:
@@ -277,9 +209,6 @@ export async function yamlToForm(yamlPath: string): Promise<string> {
       settings.collectEmail = 'verified';
     } else if (form.settings.collectEmail === 'input') {
       settings.collectEmail = 'input';
-    }
-    if (form.settings.confirmationMessage) {
-      settings.confirmationMessage = form.settings.confirmationMessage;
     }
   }
 

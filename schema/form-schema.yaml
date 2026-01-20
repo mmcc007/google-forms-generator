@@ -22,19 +22,11 @@ properties:
     type: object
     properties:
       collectEmail:
-        type: boolean
-        default: false
-      limitOneResponse:
-        type: boolean
-        default: false
-      progressBar:
-        type: boolean
-        default: false
-      shuffleQuestions:
-        type: boolean
-        default: false
-      confirmationMessage:
-        type: string
+        description: Collect respondent email (true = verified, 'input' = user enters)
+        oneOf:
+          - type: boolean
+          - type: string
+            enum: [verified, input]
 
   # Option 1: Use pages for multi-page forms (creates actual page breaks)
   pages:
@@ -98,10 +90,6 @@ definitions:
       - type
       - title
     properties:
-      id:
-        type: string
-        description: Optional unique identifier for the question
-
       type:
         type: string
         enum:
@@ -112,8 +100,6 @@ definitions:
           - dropdown
           - scale
           - date
-          - time
-          - fileUpload
           - grid
           - checkboxGrid
 
@@ -129,36 +115,11 @@ definitions:
         type: boolean
         default: false
 
-      # For text/paragraph
-      validation:
-        type: object
-        properties:
-          type:
-            type: string
-            enum: [number, text, length, regex]
-          pattern:
-            type: string
-          min:
-            type: number
-          max:
-            type: number
-          errorMessage:
-            type: string
-
       # For multipleChoice, checkbox, dropdown
       options:
         type: array
         items:
-          oneOf:
-            - type: string
-            - type: object
-              properties:
-                value:
-                  type: string
-                goToSection:
-                  type: string
-                isOther:
-                  type: boolean
+          type: string
 
       # For scale
       scale:
@@ -175,14 +136,10 @@ definitions:
           maxLabel:
             type: string
 
-      # For date/time
+      # For date
       includeTime:
         type: boolean
         default: false
-
-      includeYear:
-        type: boolean
-        default: true
 
       # For grid/checkboxGrid
       rows:
@@ -194,18 +151,3 @@ definitions:
         type: array
         items:
           type: string
-
-      # For fileUpload
-      fileTypes:
-        type: array
-        items:
-          type: string
-          enum: [document, spreadsheet, presentation, drawing, pdf, image, video, audio]
-
-      maxFiles:
-        type: integer
-        default: 1
-
-      maxFileSize:
-        type: string
-        enum: [1MB, 10MB, 100MB, 1GB, 10GB]
