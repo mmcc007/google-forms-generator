@@ -195,6 +195,12 @@ export async function yamlToForm(yamlPath: string, options: GenerateOptions = {}
   const content = fs.readFileSync(yamlPath, 'utf8');
   const form: YamlForm = yaml.parse(content);
 
+  // Apply default settings
+  const defaultSettings: YamlSettings = {
+    collectEmail: false,
+  };
+  form.settings = { ...defaultSettings, ...form.settings };
+
   // Determine form title
   let title = form.title;
   if (options.useFilename) {
@@ -235,12 +241,24 @@ export async function yamlToForm(yamlPath: string, options: GenerateOptions = {}
     for (let i = 0; i < form.pages.length; i++) {
       const page = form.pages[i];
 
-      // Add page break for each page (including first - creates section header)
-      items.push({
-        type: 'pageBreak',
-        title: page.title,
-        description: page.description,
-      });
+      if (i === 0) {
+        // First page: add questions directly (same page as form title/description)
+        // Optionally add a section header if the page has a title
+        if (page.title) {
+          items.push({
+            type: 'title',
+            title: page.title,
+            description: page.description,
+          } as FormItem);
+        }
+      } else {
+        // Subsequent pages: add page break
+        items.push({
+          type: 'pageBreak',
+          title: page.title,
+          description: page.description,
+        });
+      }
 
       addQuestions(page.questions);
     }
