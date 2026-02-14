@@ -3,7 +3,80 @@
 
 $schema: "http://json-schema.org/draft-07/schema#"
 title: GoogleFormSchema
-description: Schema for defining Google Forms in YAML format
+description: |
+  Schema for defining Google Forms in YAML format.
+
+  ## LLM Instructions
+
+  You are generating a YAML file that will be fed to a CLI tool (`npm run generate`) to
+  create or update a real Google Form. Follow these rules exactly:
+
+  ### Structure rules
+  - The root object MUST have a `title` (string).
+  - Optionally include `description` (string) and `settings`.
+  - Choose ONE of three question layouts:
+    1. `pages` — multi-page form with page breaks between pages. Best for long surveys.
+    2. `sections` — visual grouping with headers but no page breaks. Best for mid-length forms.
+    3. `questions` — flat list. Best for short forms.
+  - Never combine `pages`, `sections`, and `questions` at the root level.
+
+  ### Question type rules
+  - Every question MUST have `type` and `title`.
+  - `type` must be one of: text, paragraph, multipleChoice, checkbox, dropdown, scale,
+    date, time, rating, grid, checkboxGrid, title.
+  - `title` (type: "title") is a non-interactive section header — use it to visually group
+    questions within a page. It has no input field.
+  - `multipleChoice`, `checkbox`, `dropdown` require an `options` array of strings.
+    To add an "Other" free-text option, use `{ value: "Other", isOther: true }`.
+  - `scale` requires a `scale` object with `min` (int), `max` (int), and optional
+    `minLabel`/`maxLabel` strings.
+  - `rating` takes `ratingScale` (3–10, default 5) and `icon` (star | heart | thumbUp).
+  - `grid` and `checkboxGrid` require `rows` and `columns` arrays of strings.
+  - `date` accepts optional `includeTime: true`.
+  - `time` accepts optional `duration: true` (collects duration instead of time of day).
+  - Set `required: true` on questions that must be answered.
+  - Use `description` on any question for help text.
+
+  ### Settings
+  - `collectEmail`: false (default, anonymous), true or "verified" (Google-verified email),
+    "input" (respondent types their email).
+
+  ### Style guidance
+  - Write clear, concise question titles.
+  - Use `description` for clarification, not redundancy.
+  - For multi-page forms, give each page a descriptive `title` and optional `description`.
+  - Group related questions together.
+  - Mark fields `required` only when truly needed.
+
+  ### Compact example
+  ```yaml
+  title: Feedback Survey
+  description: Quick feedback form
+
+  pages:
+    - title: About You
+      questions:
+        - type: text
+          title: Your name
+          required: true
+        - type: multipleChoice
+          title: Role
+          options: [Engineer, Designer, Manager, { value: Other, isOther: true }]
+
+    - title: Feedback
+      questions:
+        - type: rating
+          title: Overall satisfaction
+          ratingScale: 5
+          icon: star
+          required: true
+        - type: scale
+          title: How likely to recommend?
+          scale: { min: 0, max: 10, minLabel: Not likely, maxLabel: Very likely }
+        - type: paragraph
+          title: Additional comments
+  ```
+
 type: object
 
 required:
@@ -12,17 +85,24 @@ required:
 properties:
   title:
     type: string
-    description: The title of the form
+    description: The title of the form, displayed prominently at the top.
 
   description:
     type: string
-    description: Optional description shown at the top of the form
+    description: |
+      Optional description shown below the title on the first page.
+      Supports multi-line text using YAML block scalar (|).
 
   settings:
     type: object
+    description: Form-level settings.
     properties:
       collectEmail:
-        description: Collect respondent email (true = verified, 'input' = user enters)
+        description: |
+          Controls email collection from respondents.
+          - false or omitted: anonymous (default)
+          - true or "verified": respondent must sign in with Google
+          - "input": respondent types their email (not verified)
         oneOf:
           - type: boolean
           - type: string
@@ -31,28 +111,37 @@ properties:
   # Option 1: Use pages for multi-page forms (creates actual page breaks)
   pages:
     type: array
-    description: Multi-page form with page breaks between each page
+    description: |
+      Multi-page form. Each entry becomes a separate page with a page break before it
+      (except the first page, which shares the page with the form title/description).
+      Best for longer surveys (5+ questions).
     items:
       $ref: "#/definitions/page"
 
   # Option 2: Use sections for visual grouping (no page breaks, just headers)
   sections:
     type: array
-    description: Sections to organize questions (no page breaks)
+    description: |
+      Visual sections with headers but no page breaks. All questions appear on one page.
+      Best for mid-length forms where you want grouping without navigation.
     items:
       $ref: "#/definitions/section"
 
   # Option 3: Flat list of questions (simplest)
   questions:
     type: array
-    description: List of questions (use if not using pages or sections)
+    description: |
+      Flat list of questions on a single page. Simplest layout.
+      Best for short forms (1–5 questions).
     items:
       $ref: "#/definitions/question"
 
 definitions:
   page:
     type: object
-    description: A page in the form (creates a page break before it, except for the first page)
+    description: |
+      A page in the form. The first page shares space with the form title/description;
+      subsequent pages get a page break before them with the page title/description as header.
     required:
       - title
       - questions
@@ -86,12 +175,29 @@ definitions:
 
   question:
     type: object
+    description: |
+      A form item. Set `type` to one of the supported question types.
+      Use type "title" for a non-interactive section header within a page.
     required:
       - type
       - title
     properties:
       type:
         type: string
+        description: |
+          The question type. Each type has specific additional fields:
+          - text: short text input
+          - paragraph: multi-line text input
+          - multipleChoice: radio buttons (requires `options`)
+          - checkbox: checkboxes (requires `options`)
+          - dropdown: dropdown menu (requires `options`)
+          - scale: linear scale (requires `scale` object)
+          - date: date picker (optional `includeTime`)
+          - time: time picker (optional `duration`)
+          - rating: visual icon rating (uses `ratingScale` and `icon`)
+          - grid: radio grid (requires `rows` and `columns`)
+          - checkboxGrid: checkbox grid (requires `rows` and `columns`)
+          - title: non-interactive section header (no input, no page break)
         enum:
           - text
           - paragraph
@@ -104,51 +210,71 @@ definitions:
           - rating
           - grid
           - checkboxGrid
-          - title  # Section header (no input field, no page break)
+          - title
 
       title:
         type: string
-        description: The question text
+        description: The question text shown to the respondent
 
       description:
         type: string
-        description: Optional help text below the question
+        description: Optional help text shown below the question title
 
       required:
         type: boolean
         default: false
+        description: Whether the respondent must answer this question
 
       # For multipleChoice, checkbox, dropdown
       options:
         type: array
+        description: |
+          List of choices. Each item is either a plain string or an object.
+          Use { value: "Other", isOther: true } to add a free-text "Other" option.
         items:
-          type: string
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                value:
+                  type: string
+                isOther:
+                  type: boolean
+              required: [value]
 
       # For scale
       scale:
         type: object
+        description: |
+          Linear scale configuration. Example:
+            scale: { min: 1, max: 5, minLabel: "Poor", maxLabel: "Excellent" }
         properties:
           min:
             type: integer
             default: 1
+            description: Lowest value on the scale
           max:
             type: integer
             default: 5
+            description: Highest value on the scale
           minLabel:
             type: string
+            description: Label for the lowest value
           maxLabel:
             type: string
+            description: Label for the highest value
 
       # For date
       includeTime:
         type: boolean
         default: false
+        description: If true, collects both date and time
 
       # For time
       duration:
         type: boolean
         default: false
-        description: If true, collects duration instead of time of day
+        description: If true, collects a duration (hours:minutes) instead of time of day
 
       # For rating
       ratingScale:
@@ -156,21 +282,23 @@ definitions:
         minimum: 3
         maximum: 10
         default: 5
-        description: Number of rating levels (3-10)
+        description: Number of rating levels (3–10)
 
       icon:
         type: string
         enum: [star, heart, thumbUp]
         default: star
-        description: Icon to use for rating
+        description: Visual icon for the rating question
 
       # For grid/checkboxGrid
       rows:
         type: array
+        description: Row labels for grid questions. Each row becomes a sub-question.
         items:
           type: string
 
       columns:
         type: array
+        description: Column labels for grid questions. These are the answer choices per row.
         items:
           type: string

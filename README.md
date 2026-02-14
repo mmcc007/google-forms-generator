@@ -5,6 +5,8 @@ Generate Google Forms programmatically from YAML files or TypeScript using the G
 ## Features
 
 - Create forms from YAML configuration files
+- **Update existing forms in place** (same URL, new content)
+- Response safety: warns before updating forms with responses, with CSV export
 - Multi-page forms with page breaks
 - Visual sections for organizing questions
 - Grid/matrix questions (native support)
@@ -12,6 +14,7 @@ Generate Google Forms programmatically from YAML files or TypeScript using the G
 - Supported question types: text, paragraph, multiple choice, checkbox, dropdown, scale, date, time, rating, grid, checkboxGrid
 - Description field support for all question types
 - Title/subsection headers within pages (without page breaks)
+- LLM-friendly schema with embedded prompts for AI-assisted form generation
 
 ## Setup
 
@@ -69,6 +72,41 @@ npm install
 ```bash
 npm run generate -- examples/multi-page-survey.yaml
 ```
+
+### CLI Options
+
+```
+Options:
+  --form-id <id>      Update an existing form instead of creating a new one
+  --force             Skip the response warning and update anyway
+  --save-responses    Export existing responses to CSV before updating
+  --use-filename      Use the YAML filename as the form title
+  --prefix <text>     Prefix the form title (e.g., --prefix "Test: ")
+  --test              Shorthand for --prefix "Test: "
+```
+
+### Update an existing form
+
+When a form link has already been shared, you can update its content in place without changing the URL:
+
+```bash
+npm run generate -- form.yaml --form-id <id>
+```
+
+If the form has existing responses, the command will abort with a warning. You can:
+
+```bash
+# Export responses to CSV first, then abort (review before deciding)
+npm run generate -- form.yaml --form-id <id> --save-responses
+
+# Export responses and update in one step
+npm run generate -- form.yaml --form-id <id> --save-responses --force
+
+# Skip the warning and update without exporting
+npm run generate -- form.yaml --form-id <id> --force
+```
+
+The CSV file is saved as `<yaml-filename>-responses-<timestamp>.csv` in the current directory, with question titles as column headers.
 
 On first run, you'll be prompted to:
 1. Visit a URL in your browser
@@ -265,6 +303,13 @@ const config: FormConfig = {
 
 const formId = await generator.createForm(config);
 console.log(`Form URL: https://docs.google.com/forms/d/${formId}/viewform`);
+
+// Update an existing form in place
+const responseCount = await generator.getResponseCount(formId);
+if (responseCount > 0) {
+  await generator.exportResponsesCsv(formId, 'responses-backup.csv');
+}
+await generator.updateForm(formId, updatedConfig);
 ```
 
 ## API Reference
@@ -275,8 +320,11 @@ console.log(`Form URL: https://docs.google.com/forms/d/${formId}/viewform`);
 
 - `authenticate()` - Authenticate with Google OAuth
 - `createForm(config)` - Create a new form
+- `updateForm(formId, config)` - Update an existing form in place (deletes all items, recreates from config)
 - `getForm(formId)` - Get form details
 - `getResponses(formId)` - Get form responses
+- `getResponseCount(formId)` - Get the number of responses
+- `exportResponsesCsv(formId, outputPath)` - Export all responses to a CSV file
 - `deleteQuestion(formId, index)` - Delete a question
 - `listForms()` - List all forms in your Drive
 - `deleteForm(formId)` - Delete a form
@@ -285,6 +333,18 @@ console.log(`Form URL: https://docs.google.com/forms/d/${formId}/viewform`);
 
 - `credentials.json` - OAuth credentials (you create this, gitignored)
 - `token.json` - Auth token (auto-generated, gitignored)
+
+## Using with LLMs
+
+The schema file at `schema/form-schema.yaml` contains embedded prompts and instructions so you can feed it directly to an LLM (ChatGPT, Claude, etc.) to generate valid form YAML:
+
+```
+Given this schema, generate a YAML form for a customer satisfaction survey with 3 pages.
+
+<paste contents of schema/form-schema.yaml>
+```
+
+The schema includes structure rules, question type documentation, style guidance, and a working example — everything the LLM needs to produce YAML that works with `npm run generate` without modification.
 
 ## Limitations
 
@@ -312,7 +372,6 @@ Future enhancements planned:
 ### Additional Features
 - Conditional logic / branching support
 - Form templates
-- Response export utilities
 
 ## License
 
