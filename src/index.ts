@@ -481,6 +481,73 @@ export class GoogleFormsGenerator {
     }
   }
 
+  async updateForm(formId: string, config: FormConfig): Promise<string> {
+    if (!this.forms) {
+      throw new Error('Not authenticated. Call authenticate() first.');
+    }
+
+    // Fetch the existing form to get current item count
+    const existingForm = await this.getForm(formId);
+    const existingItems = existingForm.items || [];
+
+    const requests: forms_v1.Schema$Request[] = [];
+
+    // Delete existing items in reverse order to avoid index shifting
+    for (let i = existingItems.length - 1; i >= 0; i--) {
+      requests.push({
+        deleteItem: {
+          location: { index: i },
+        },
+      });
+    }
+
+    // Update form title and description
+    requests.push({
+      updateFormInfo: {
+        info: {
+          title: config.title,
+          description: config.description ?? '',
+        },
+        updateMask: 'title,description',
+      },
+    });
+
+    // Update settings if provided
+    if (config.settings?.collectEmail && config.settings.collectEmail !== 'none') {
+      const emailType = config.settings.collectEmail === 'verified' ? 'VERIFIED' : 'RESPONDER_INPUT';
+      requests.push({
+        updateSettings: {
+          settings: {
+            emailCollectionType: emailType,
+          } as any,
+          updateMask: 'emailCollectionType',
+        },
+      });
+    }
+
+    // Create all new items
+    const items = config.items || config.questions || [];
+    items.forEach((item, index) => {
+      requests.push({
+        createItem: {
+          item: this.buildItem(item),
+          location: { index },
+        },
+      });
+    });
+
+    // Execute as one atomic batchUpdate call
+    if (requests.length > 0) {
+      await this.forms.forms.batchUpdate({
+        formId,
+        requestBody: { requests },
+      });
+    }
+
+    console.log(`Form updated: ${formId}`);
+    return formId;
+  }
+
   async getForm(formId: string): Promise<forms_v1.Schema$Form> {
     if (!this.forms) {
       throw new Error('Not authenticated. Call authenticate() first.');
@@ -497,6 +564,77 @@ export class GoogleFormsGenerator {
 
     const response = await this.forms.forms.responses.list({ formId });
     return response.data;
+  }
+
+  async getResponseCount(formId: string): Promise<number> {
+    const data = await this.getResponses(formId);
+    return data.responses?.length ?? 0;
+  }
+
+  async exportResponsesCsv(formId: string, outputPath: string): Promise<number> {
+    const form = await this.getForm(formId);
+    const responsesData = await this.getResponses(formId);
+    const responses = responsesData.responses || [];
+
+    if (responses.length === 0) {
+      return 0;
+    }
+
+    // Build question ID -> title mapping from form items
+    const questionMap = new Map<string, string>();
+    for (const item of form.items || []) {
+      if (item.questionItem?.question?.questionId) {
+        questionMap.set(item.questionItem.question.questionId, item.title || '');
+      }
+      if (item.questionGroupItem?.questions) {
+        for (const q of item.questionGroupItem.questions) {
+          if (q.questionId) {
+            const rowTitle = q.rowQuestion?.title || '';
+            questionMap.set(q.questionId, `${item.title || ''} [${rowTitle}]`);
+          }
+        }
+      }
+    }
+
+    // Collect all question IDs across all responses (preserving order)
+    const questionIds: string[] = [];
+    const seenIds = new Set<string>();
+    for (const resp of responses) {
+      for (const qId of Object.keys(resp.answers || {})) {
+        if (!seenIds.has(qId)) {
+          seenIds.add(qId);
+          questionIds.push(qId);
+        }
+      }
+    }
+
+    // Build CSV
+    const escapeCsv = (value: string): string => {
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    };
+
+    const headers = [
+      'Timestamp',
+      ...questionIds.map((id) => escapeCsv(questionMap.get(id) || id)),
+    ];
+
+    const rows = responses.map((resp) => {
+      const timestamp = resp.lastSubmittedTime || resp.createTime || '';
+      const values = questionIds.map((qId) => {
+        const answer = resp.answers?.[qId];
+        if (!answer?.textAnswers?.answers) return '';
+        return answer.textAnswers.answers.map((a) => a.value || '').join('; ');
+      });
+      return [escapeCsv(timestamp), ...values.map(escapeCsv)];
+    });
+
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    fs.writeFileSync(outputPath, csv, 'utf8');
+
+    return responses.length;
   }
 
   async deleteQuestion(formId: string, questionIndex: number): Promise<void> {

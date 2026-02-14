@@ -189,6 +189,9 @@ function convertQuestion(q: YamlQuestion): Question | Question[] {
 interface GenerateOptions {
   useFilename?: boolean;
   prefix?: string;
+  formId?: string;
+  force?: boolean;
+  saveResponses?: boolean;
 }
 
 export async function yamlToForm(yamlPath: string, options: GenerateOptions = {}): Promise<string> {
@@ -300,6 +303,36 @@ export async function yamlToForm(yamlPath: string, options: GenerateOptions = {}
   const generator = new GoogleFormsGenerator();
   await generator.authenticate();
 
+  if (options.formId) {
+    // Check for existing responses before updating
+    const responseCount = await generator.getResponseCount(options.formId);
+
+    if (responseCount > 0) {
+      console.log(`\nWARNING: Form has ${responseCount} existing response(s).`);
+      console.log('Updating will replace all questions, which may make existing responses unreadable.\n');
+
+      if (options.saveResponses) {
+        const csvPath = `${path.basename(yamlPath, path.extname(yamlPath))}-responses-${Date.now()}.csv`;
+        const saved = await generator.exportResponsesCsv(options.formId, csvPath);
+        console.log(`Saved ${saved} response(s) to ${csvPath}`);
+      }
+
+      if (!options.force && !options.saveResponses) {
+        console.error('Aborting. Use --force to update anyway, or --save-responses to export responses first.');
+        process.exit(1);
+      }
+
+      if (!options.force) {
+        console.error('Responses saved. Use --force to proceed with the update, or re-run with both --save-responses --force.');
+        process.exit(1);
+      }
+    }
+
+    console.log(`Updating form "${form.title}" (${options.formId}) with ${items.length} items...`);
+    await generator.updateForm(options.formId, formConfig);
+    return options.formId;
+  }
+
   console.log(`Creating form "${form.title}" with ${items.length} items...`);
   const formId = await generator.createForm(formConfig);
 
@@ -314,11 +347,17 @@ async function main() {
     console.log('Usage: npm run generate -- <path-to-yaml> [options]');
     console.log('');
     console.log('Options:');
-    console.log('  --use-filename    Use the YAML filename as the form title');
-    console.log('  --prefix <text>   Prefix the form title (e.g., --prefix "Test: ")');
-    console.log('  --test            Shorthand for --prefix "Test: "');
+    console.log('  --form-id <id>      Update an existing form instead of creating a new one');
+    console.log('  --force             Skip the response warning and update anyway');
+    console.log('  --save-responses    Export existing responses to CSV before updating');
+    console.log('  --use-filename      Use the YAML filename as the form title');
+    console.log('  --prefix <text>     Prefix the form title (e.g., --prefix "Test: ")');
+    console.log('  --test              Shorthand for --prefix "Test: "');
     console.log('');
-    console.log('Example: npm run generate -- form.yaml --test');
+    console.log('Examples:');
+    console.log('  npm run generate -- form.yaml --test');
+    console.log('  npm run generate -- form.yaml --form-id <id> --force');
+    console.log('  npm run generate -- form.yaml --form-id <id> --save-responses --force');
     process.exit(1);
   }
 
@@ -332,6 +371,12 @@ async function main() {
       options.useFilename = true;
     } else if (arg === '--prefix' && args[i + 1]) {
       options.prefix = args[++i];
+    } else if (arg === '--form-id' && args[i + 1]) {
+      options.formId = args[++i];
+    } else if (arg === '--force') {
+      options.force = true;
+    } else if (arg === '--save-responses') {
+      options.saveResponses = true;
     } else if (arg === '--test') {
       options.prefix = 'Test: ';
     } else if (!arg.startsWith('--')) {
@@ -351,7 +396,8 @@ async function main() {
 
   try {
     const formId = await yamlToForm(yamlPath, options);
-    console.log(`\n✓ Form created successfully!`);
+    const action = options.formId ? 'updated' : 'created';
+    console.log(`\n✓ Form ${action} successfully!`);
     console.log(`\nEdit URL: https://docs.google.com/forms/d/${formId}/edit`);
     console.log(`View URL: https://docs.google.com/forms/d/${formId}/viewform`);
   } catch (error) {
