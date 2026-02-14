@@ -141,6 +141,21 @@ const SCOPES = [
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
+/**
+ * Clean up text that may contain unwanted newlines from YAML parsing.
+ * Single newlines (line-wrap artifacts) become spaces.
+ * Double newlines (intentional paragraph breaks) are preserved.
+ */
+function cleanText(text: string): string {
+  return text
+    .replace(/\r\n/g, '\n')
+    .replace(/\n\n+/g, '\0')
+    .replace(/\n/g, ' ')
+    .replace(/\0/g, '\n\n')
+    .replace(/ {2,}/g, ' ')
+    .trim();
+}
+
 export class GoogleFormsGenerator {
   private auth: OAuth2Client | null = null;
   private forms: forms_v1.Forms | null = null;
@@ -217,7 +232,7 @@ export class GoogleFormsGenerator {
     const createResponse = await this.forms.forms.create({
       requestBody: {
         info: {
-          title: config.title,
+          title: cleanText(config.title),
         },
       },
     });
@@ -237,7 +252,7 @@ export class GoogleFormsGenerator {
       requests.push({
         updateFormInfo: {
           info: {
-            description: config.description,
+            description: cleanText(config.description),
           },
           updateMask: 'description',
         },
@@ -285,16 +300,16 @@ export class GoogleFormsGenerator {
   private buildItem(item: FormItem): forms_v1.Schema$Item {
     if (item.type === 'pageBreak') {
       return {
-        title: item.title,
-        description: item.description,
+        title: cleanText(item.title),
+        description: item.description ? cleanText(item.description) : undefined,
         pageBreakItem: {},
       };
     }
     if (item.type === 'title') {
       // textItem creates a title/description without page break
       return {
-        title: item.title,
-        description: item.description,
+        title: cleanText(item.title),
+        description: item.description ? cleanText(item.description) : undefined,
         textItem: {},
       };
     }
@@ -302,9 +317,10 @@ export class GoogleFormsGenerator {
   }
 
   private buildQuestionItem(question: Question): forms_v1.Schema$Item {
+    const desc = (question as any).description;
     const baseItem: forms_v1.Schema$Item = {
-      title: question.title,
-      description: (question as any).description,
+      title: cleanText(question.title),
+      description: desc ? cleanText(desc) : undefined,
     };
 
     switch (question.type) {
@@ -505,8 +521,8 @@ export class GoogleFormsGenerator {
     requests.push({
       updateFormInfo: {
         info: {
-          title: config.title,
-          description: config.description ?? '',
+          title: cleanText(config.title),
+          description: config.description ? cleanText(config.description) : '',
         },
         updateMask: 'title,description',
       },

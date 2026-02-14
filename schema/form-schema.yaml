@@ -41,6 +41,31 @@ description: |
   - `collectEmail`: false (default, anonymous), true or "verified" (Google-verified email),
     "input" (respondent types their email).
 
+  ### Multi-line text rules
+  The tool automatically cleans up newlines in titles and descriptions:
+  - Single newlines are collapsed to spaces (so you can wrap long lines for readability).
+  - Double newlines (blank lines) are preserved as paragraph breaks.
+
+  Use the `|` (literal block) scalar for multi-line text:
+  ```yaml
+  description: |
+    First paragraph that wraps
+    across multiple lines for readability.
+
+    Second paragraph starts after a blank line.
+  ```
+  Result: "First paragraph that wraps across multiple lines for readability.\n\nSecond paragraph starts after a blank line."
+
+  For single-paragraph text, use `>-` (folded, strip trailing newline) or just a quoted string:
+  ```yaml
+  description: >-
+    A long single paragraph that
+    wraps for readability.
+  ```
+
+  IMPORTANT: Do NOT use `>` or `>-` for multi-paragraph text — they collapse blank lines
+  into single newlines, losing paragraph breaks. Always use `|` when you need paragraphs.
+
   ### Style guidance
   - Write clear, concise question titles.
   - Use `description` for clarification, not redundancy.
@@ -91,7 +116,8 @@ properties:
     type: string
     description: |
       Optional description shown below the title on the first page.
-      Supports multi-line text using YAML block scalar (|).
+      Use | for multi-paragraph text, >- for single paragraphs.
+      See "Multi-line text rules" above.
 
   settings:
     type: object
