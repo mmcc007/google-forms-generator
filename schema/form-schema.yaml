@@ -34,7 +34,10 @@ description: |
   - `grid` and `checkboxGrid` require `rows` and `columns` arrays of strings.
   - `date` accepts optional `includeTime: true`.
   - `time` accepts optional `duration: true` (collects duration instead of time of day).
-  - Set `required: true` on questions that must be answered.
+  - Do NOT set `required: true` on any question unless explicitly requested. The default
+    is all fields optional. Forms are often shared with multiple people who each address
+    different sections, so required fields block partial submissions. Making a field
+    required should be a deliberate decision by the form author.
   - Use `description` on any question for help text.
 
   ### Settings
@@ -71,7 +74,7 @@ description: |
   - Use `description` for clarification, not redundancy.
   - For multi-page forms, give each page a descriptive `title` and optional `description`.
   - Group related questions together.
-  - Mark fields `required` only when truly needed.
+  - Never mark fields `required` unless the user explicitly asks for it.
 
   ### Compact example
   ```yaml
