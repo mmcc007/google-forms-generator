@@ -528,18 +528,22 @@ export class GoogleFormsGenerator {
       },
     });
 
-    // Update settings if provided
-    if (config.settings?.collectEmail && config.settings.collectEmail !== 'none') {
-      const emailType = config.settings.collectEmail === 'verified' ? 'VERIFIED' : 'RESPONDER_INPUT';
-      requests.push({
-        updateSettings: {
-          settings: {
-            emailCollectionType: emailType,
-          } as any,
-          updateMask: 'emailCollectionType',
-        },
-      });
+    // Always reset email collection setting on update
+    const collectEmail = config.settings?.collectEmail;
+    let emailType = 'DO_NOT_COLLECT';
+    if (collectEmail === 'verified') {
+      emailType = 'VERIFIED';
+    } else if (collectEmail === 'input') {
+      emailType = 'RESPONDER_INPUT';
     }
+    requests.push({
+      updateSettings: {
+        settings: {
+          emailCollectionType: emailType,
+        } as any,
+        updateMask: 'emailCollectionType',
+      },
+    });
 
     // Create all new items
     const items = config.items || config.questions || [];

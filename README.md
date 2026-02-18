@@ -169,7 +169,7 @@ questions:
 ```yaml
 title: My Survey
 settings:
-  collectEmail: true           # Collect respondent email (verified or input)
+  collectEmail: false           # Default; "verified" or "input" require Google account
 ```
 
 Note: `confirmationMessage` is not supported by the Google Forms API.
@@ -363,11 +363,6 @@ Future enhancements planned:
 ### Numbered Questions Schema
 - Support for automatic section/subsection numbering (e.g., 1.1, 1.2, 2.1)
 - Hierarchical question numbering in YAML schema
-
-### Auto "Other" Text Field
-- Automatically append text input field when question type has "Other" option
-- Some question types provide built-in text input, others need explicit follow-up field
-- Handle this automatically in form generation
 
 ### Additional Features
 - Conditional logic / branching support

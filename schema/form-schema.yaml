@@ -41,7 +41,7 @@ description: |
   - Use `description` on any question for help text.
 
   ### Settings
-  - `collectEmail`: false (default, anonymous), true or "verified" (Google-verified email),
+  - `collectEmail`: false (default, anonymous), "verified" (Google-verified email),
     "input" (respondent types their email).
 
   ### Multi-line text rules
