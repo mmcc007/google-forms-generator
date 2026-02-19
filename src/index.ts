@@ -16,6 +16,20 @@ export interface TextQuestion {
 
 export type OptionItem = string | { value: string; isOther?: boolean };
 
+function buildChoiceOptions(options: OptionItem[]) {
+  const mapped = options.map((opt) =>
+    typeof opt === 'string'
+      ? { value: opt }
+      : opt.isOther
+        ? { isOther: true as const }
+        : { value: opt.value }
+  );
+  // Google Forms API requires "Other" option to be last
+  const regular = mapped.filter((o) => !('isOther' in o));
+  const other = mapped.filter((o) => 'isOther' in o);
+  return [...regular, ...other];
+}
+
 export interface MultipleChoiceQuestion {
   type: 'multipleChoice';
   title: string;
@@ -345,13 +359,7 @@ export class GoogleFormsGenerator {
               required: question.required ?? false,
               choiceQuestion: {
                 type: 'RADIO',
-                options: question.options.map((opt) =>
-                  typeof opt === 'string'
-                    ? { value: opt }
-                    : opt.isOther
-                      ? { isOther: true }
-                      : { value: opt.value }
-                ),
+                options: buildChoiceOptions(question.options),
               },
             },
           },
@@ -365,13 +373,7 @@ export class GoogleFormsGenerator {
               required: question.required ?? false,
               choiceQuestion: {
                 type: 'CHECKBOX',
-                options: question.options.map((opt) =>
-                  typeof opt === 'string'
-                    ? { value: opt }
-                    : opt.isOther
-                      ? { isOther: true }
-                      : { value: opt.value }
-                ),
+                options: buildChoiceOptions(question.options),
               },
             },
           },
@@ -385,13 +387,7 @@ export class GoogleFormsGenerator {
               required: question.required ?? false,
               choiceQuestion: {
                 type: 'DROP_DOWN',
-                options: question.options.map((opt) =>
-                  typeof opt === 'string'
-                    ? { value: opt }
-                    : opt.isOther
-                      ? { isOther: true }
-                      : { value: opt.value }
-                ),
+                options: buildChoiceOptions(question.options),
               },
             },
           },
