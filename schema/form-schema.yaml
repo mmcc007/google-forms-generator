@@ -69,6 +69,15 @@ description: |
   IMPORTANT: Do NOT use `>` or `>-` for multi-paragraph text — they collapse blank lines
   into single newlines, losing paragraph breaks. Always use `|` when you need paragraphs.
 
+  ### Numbering
+  - Do NOT add section or question numbers to titles — the tool adds them automatically.
+  - Auto-numbering is on by default. Set `numbering: false` at the root to disable it.
+  - The `--no-numbers` CLI flag also disables numbering.
+  - Sections/pages get "Section 1 — ", "Section 2 — " prefixes.
+  - Questions get "Q 1.1 — ", "Q 1.2 — " prefixes (section.question).
+  - Flat questions (no pages/sections) get "Q 1 — ", "Q 2 — " prefixes.
+  - `type: title` items (visual headers) are not numbered.
+
   ### Style guidance
   - Write clear, concise question titles.
   - Use `description` for clarification, not redundancy.
@@ -121,6 +130,13 @@ properties:
       Optional description shown below the title on the first page.
       Use | for multi-paragraph text, >- for single paragraphs.
       See "Multi-line text rules" above.
+
+  numbering:
+    type: boolean
+    default: true
+    description: |
+      Enable auto-numbering of sections and questions. Default is true.
+      Set to false to disable. The --no-numbers CLI flag also disables numbering.
 
   settings:
     type: object

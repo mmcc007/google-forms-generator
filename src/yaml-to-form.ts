@@ -7,6 +7,7 @@ import GoogleFormsGenerator, {
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'yaml';
+import { numberTitle } from './numbering';
 
 interface YamlQuestion {
   type: string;
@@ -47,6 +48,7 @@ interface YamlPage {
 interface YamlForm {
   title: string;
   description?: string;
+  numbering?: boolean;       // Auto-number sections/questions (default: true)
   settings?: YamlSettings;
   pages?: YamlPage[];      // Multi-page form with page breaks
   sections?: YamlSection[]; // Visual sections (no page breaks)
@@ -193,6 +195,7 @@ interface GenerateOptions {
   formId?: string;
   force?: boolean;
   saveResponses?: boolean;
+  noNumbers?: boolean;
 }
 
 export async function yamlToForm(yamlPath: string, options: GenerateOptions = {}): Promise<string> {
@@ -217,25 +220,38 @@ export async function yamlToForm(yamlPath: string, options: GenerateOptions = {}
   }
   form.title = title;
 
+  // Determine whether auto-numbering is enabled
+  const enableNumbering = !(options.noNumbers || form.numbering === false);
+
   const items: FormItem[] = [];
 
-  // Helper to add questions from a list
-  const addQuestions = (questions: YamlQuestion[]) => {
+  // Helper to add questions from a list, with optional numbering
+  const addQuestions = (questions: YamlQuestion[], sectionIndex?: number) => {
+    let questionIndex = 1;
     for (const q of questions) {
       if (q.type === 'title') {
-        // Section header (textItem) - no input field, no page break
+        // Section header (textItem) - no input field, no page break — skip numbering
         items.push({
           type: 'title',
           title: q.title,
           description: q.description,
         } as FormItem);
       } else {
-        const converted = convertQuestion(q);
+        const numberedTitle = enableNumbering
+          ? numberTitle(
+              sectionIndex != null
+                ? `Q ${sectionIndex}.${questionIndex} \u2014 `
+                : `Q ${questionIndex} \u2014 `,
+              q.title,
+            )
+          : q.title;
+        const converted = convertQuestion({ ...q, title: numberedTitle });
         if (Array.isArray(converted)) {
           items.push(...converted);
         } else {
           items.push(converted);
         }
+        questionIndex++;
       }
     }
   };
@@ -244,6 +260,10 @@ export async function yamlToForm(yamlPath: string, options: GenerateOptions = {}
     // Multi-page form with actual page breaks
     for (let i = 0; i < form.pages.length; i++) {
       const page = form.pages[i];
+      const sectionNum = i + 1;
+      const pageTitle = enableNumbering
+        ? numberTitle(`Section ${sectionNum} \u2014 `, page.title)
+        : page.title;
 
       if (i === 0) {
         // First page: add questions directly (same page as form title/description)
@@ -251,7 +271,7 @@ export async function yamlToForm(yamlPath: string, options: GenerateOptions = {}
         if (page.title) {
           items.push({
             type: 'title',
-            title: page.title,
+            title: pageTitle,
             description: page.description,
           } as FormItem);
         }
@@ -259,27 +279,33 @@ export async function yamlToForm(yamlPath: string, options: GenerateOptions = {}
         // Subsequent pages: add page break
         items.push({
           type: 'pageBreak',
-          title: page.title,
+          title: pageTitle,
           description: page.description,
         });
       }
 
-      addQuestions(page.questions);
+      addQuestions(page.questions, sectionNum);
     }
   } else if (form.sections) {
     // Visual sections (no page breaks, just headers)
+    let sectionNum = 0;
     for (const section of form.sections) {
+      sectionNum++;
+      const sectionTitle = enableNumbering
+        ? numberTitle(`Section ${sectionNum} \u2014 `, section.title)
+        : section.title;
+
       items.push({
         type: 'text',
-        title: `📋 ${section.title}`,
+        title: `📋 ${sectionTitle}`,
         paragraph: true,
         required: false,
       });
 
-      addQuestions(section.questions);
+      addQuestions(section.questions, sectionNum);
     }
   } else if (form.questions) {
-    // Flat list of questions
+    // Flat list of questions — no section prefix
     addQuestions(form.questions);
   }
 
@@ -353,6 +379,7 @@ async function main() {
     console.log('  --save-responses    Export existing responses to CSV before updating');
     console.log('  --use-filename      Use the YAML filename as the form title');
     console.log('  --prefix <text>     Prefix the form title (e.g., --prefix "Test: ")');
+    console.log('  --no-numbers        Disable auto-numbering of sections and questions');
     console.log('  --test              Shorthand for --prefix "Test: "');
     console.log('');
     console.log('Examples:');
@@ -378,6 +405,8 @@ async function main() {
       options.force = true;
     } else if (arg === '--save-responses') {
       options.saveResponses = true;
+    } else if (arg === '--no-numbers') {
+      options.noNumbers = true;
     } else if (arg === '--test') {
       options.prefix = 'Test: ';
     } else if (!arg.startsWith('--')) {
