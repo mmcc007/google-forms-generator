@@ -14,12 +14,12 @@ export interface TextQuestion {
   paragraph?: boolean;
 }
 
-export type OptionItem = string | { value: string; isOther?: boolean };
+export type OptionItem = string | number | { value: string; isOther?: boolean };
 
 function buildChoiceOptions(options: OptionItem[]) {
   const mapped = options.map((opt) =>
-    typeof opt === 'string'
-      ? { value: opt }
+    typeof opt === 'string' || typeof opt === 'number'
+      ? { value: String(opt) }
       : opt.isOther
         ? { isOther: true as const }
         : { value: opt.value }
