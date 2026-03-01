@@ -60,7 +60,7 @@ function convertQuestion(q: YamlQuestion): Question | Question[] {
   const normalizeOptions = (opts: YamlQuestion['options']) => {
     if (!opts) return [];
     return opts.map(o => {
-      if (typeof o === 'string') return o;
+      if (typeof o === 'string' || typeof o === 'number') return String(o);
       if (o.isOther) return { value: o.value, isOther: true };
       return o.value;
     });

@@ -15,9 +15,12 @@ description: |
   - The root object MUST have a `title` (string).
   - Optionally include `description` (string) and `settings`.
   - Choose ONE of three question layouts:
-    1. `pages` — multi-page form with page breaks between pages. Best for long surveys.
-    2. `sections` — visual grouping with headers but no page breaks. Best for mid-length forms.
-    3. `questions` — flat list. Best for short forms.
+    1. `pages` — multi-page form with page breaks between pages. **Use this by default**
+       whenever the form has more than one logical group of questions. Each page is a
+       separate screen for the respondent. Preferred for professional questionnaires.
+    2. `sections` — visual grouping with headers but NO page breaks. All questions appear
+       on one scrollable page. Only use for short forms (under 10 questions total).
+    3. `questions` — flat list with no grouping. Only for very simple forms (under 5 questions).
   - Never combine `pages`, `sections`, and `questions` at the root level.
 
   ### Question type rules
@@ -29,7 +32,8 @@ description: |
   - `multipleChoice`, `checkbox`, `dropdown` require an `options` array of strings.
     To add an "Other" free-text option, use `{ value: "Other", isOther: true }`.
   - `scale` requires a `scale` object with `min` (int), `max` (int), and optional
-    `minLabel`/`maxLabel` strings.
+    `minLabel`/`maxLabel` strings. Do NOT use `type: multipleChoice` for satisfaction
+    or rating scales — use `type: scale` instead. A `scale` question never has `options`.
   - `rating` takes `ratingScale` (3–10, default 5) and `icon` (star | heart | thumbUp).
   - `grid` and `checkboxGrid` require `rows` and `columns` arrays of strings.
   - `date` accepts optional `includeTime: true`.
@@ -40,9 +44,17 @@ description: |
     required should be a deliberate decision by the form author.
   - Use `description` on any question for help text.
 
+  ### Contact information page
+  - Every form using `pages` layout MUST have a first page titled "Contact Information"
+    with these three questions (all optional, no `required: true`):
+    1. `type: text`, title: "Your name"
+    2. `type: text`, title: "Your email address"
+    3. `type: text`, title: "Your phone number", description: "Optional"
   ### Settings
-  - `collectEmail`: false (default, anonymous), "verified" (Google-verified email),
-    "input" (respondent types their email).
+  - Do NOT set `collectEmail` unless explicitly requested. The default (omit the field)
+    is anonymous — no Google account required from respondents. Setting `collectEmail`
+    forces respondents to sign in with Google or type their email, which creates friction.
+    If you need to collect an email address, add a manual `type: text` question instead.
 
   ### Multi-line text rules
   The tool automatically cleans up newlines in titles and descriptions:
