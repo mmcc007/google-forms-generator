@@ -32,7 +32,8 @@ description: |
   - `multipleChoice`, `checkbox`, `dropdown` require an `options` array of strings.
     To add an "Other" free-text option, use `{ value: "Other", isOther: true }`.
   - `scale` requires a `scale` object with `min` (int), `max` (int), and optional
-    `minLabel`/`maxLabel` strings.
+    `minLabel`/`maxLabel` strings. Do NOT use `type: multipleChoice` for satisfaction
+    or rating scales — use `type: scale` instead. A `scale` question never has `options`.
   - `rating` takes `ratingScale` (3–10, default 5) and `icon` (star | heart | thumbUp).
   - `grid` and `checkboxGrid` require `rows` and `columns` arrays of strings.
   - `date` accepts optional `includeTime: true`.
