@@ -360,9 +360,11 @@ The following features are **not available** via the Google Forms API:
 
 Future enhancements planned:
 
-### Numbered Questions Schema
-- Support for automatic section/subsection numbering (e.g., 1.1, 1.2, 2.1)
-- Hierarchical question numbering in YAML schema
+### Email Notifications on Response
+- Automatically enable "notify me on new response" when creating/updating a form
+- The Forms API does not support this directly — requires attaching an Apps Script
+  trigger via the Apps Script API (same mechanism the Google Forms UI uses internally)
+- Needs additional OAuth scope and Apps Script API access in the Google Cloud project
 
 ### Additional Features
 - Conditional logic / branching support
