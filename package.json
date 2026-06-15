@@ -12,6 +12,7 @@
     "list-forms": "ts-node src/list-forms.ts",
     "delete-forms": "ts-node src/delete-forms.ts",
     "validate": "ts-node src/validate-responses.ts",
+    "responses": "ts-node src/dump-responses.ts",
     "test": "vitest run"
   },
   "bin": {

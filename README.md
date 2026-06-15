@@ -134,6 +134,18 @@ Lists all forms and prompts you to select which ones to delete. You can enter:
 - `all` to delete all listed forms
 - Press Enter to cancel
 
+### Read responses
+
+```bash
+npm run responses -- <form-id>
+```
+
+Prints every submitted response, grouped by respondent and sorted by submit
+time, mapping each answer to its question title (handles grid/question-group
+items too). Useful for reading results without opening the Forms UI or linking
+a responses Sheet. (For just flagging empty "Other" selections, use
+`npm run validate -- <form-id>`.)
+
 ### YAML Configuration
 
 #### Basic Structure
